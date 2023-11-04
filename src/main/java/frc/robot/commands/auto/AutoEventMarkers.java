@@ -8,7 +8,6 @@ import java.util.Map;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
-import frc.lib.util.ElevatorWristState;
 
 /** Add your docs here. */
 public class AutoEventMarkers {

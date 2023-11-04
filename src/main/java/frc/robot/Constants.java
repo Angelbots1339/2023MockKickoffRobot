@@ -8,6 +8,8 @@ import com.ctre.phoenix.sensors.AbsoluteSensorRange;
 import com.ctre.phoenix.sensors.SensorInitializationStrategy;
 import com.ctre.phoenix.sensors.SensorTimeBase;
 import com.ctre.phoenix.sensors.SensorVelocityMeasPeriod;
+import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.math.MatBuilder;
 import edu.wpi.first.math.Matrix;
@@ -21,7 +23,7 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
-import frc.lib.util.SwerveModuleConstants;
+import frc.lib.util.swerve.SwerveModuleConstants;
 
 
 public final class Constants {
@@ -98,8 +100,8 @@ public final class Constants {
         public static final class FalconConfigConstants {
 
             /* Neutral Modes */
-            public static final NeutralMode ANGLE_NEUTRAL_MODE = NeutralMode.Brake;
-            public static final NeutralMode DRIVE_NEUTRAL_MODE = NeutralMode.Brake;
+            public static final NeutralModeValue ANGLE_NEUTRAL_MODE = NeutralModeValue.Brake;
+            public static final NeutralModeValue DRIVE_NEUTRAL_MODE = NeutralModeValue.Brake;
 
             /* Sensor Initialization strategy */
             public static final SensorInitializationStrategy ANGLE_SENSOR_INIT_STRATEGY = SensorInitializationStrategy.BootToZero;
@@ -128,25 +130,25 @@ public final class Constants {
             public static final double CLOSED_LOOP_RAMP = 0.0;
 
             /* Motor Inverts */
-            public static final TalonFXInvertType ANGLE_MOTOR_INVERT = TalonFXInvertType.Clockwise;
-            public static final TalonFXInvertType DRIVE_MOTOR_INVERT = TalonFXInvertType.Clockwise;
+            public static final InvertedValue ANGLE_MOTOR_INVERT = InvertedValue.Clockwise_Positive;
+            public static final InvertedValue DRIVE_MOTOR_INVERT = InvertedValue.Clockwise_Positive;
 
             /* Swerve Current Limiting */
-            private static final int ANGLE_CONTINUOUS_CURRENT_LIMIT = 25;
-            private static final int ANGLE_PEAK_CURRENT_LIMIT = 40;
-            private static final double ANGLE_PEAK_CURRENT_DURATION = 0.1;
-            private static final boolean ANGLE_ENABLE_CURRENT_LIMIT = true;
+            public static final int ANGLE_CONTINUOUS_CURRENT_LIMIT = 25;
+            public static final int ANGLE_PEAK_CURRENT_LIMIT = 40;
+            public static final double ANGLE_PEAK_CURRENT_DURATION = 0.1;
+            public static final boolean ANGLE_ENABLE_CURRENT_LIMIT = true;
             public static final SupplyCurrentLimitConfiguration ANGLE_CURRENT_LIMIT = new SupplyCurrentLimitConfiguration(
                     ANGLE_ENABLE_CURRENT_LIMIT, ANGLE_CONTINUOUS_CURRENT_LIMIT, ANGLE_PEAK_CURRENT_LIMIT,
                     ANGLE_PEAK_CURRENT_DURATION);
 
-            private static final int DRIVE_CONTINUOUS_CURRENT_LIMIT = 35;
-            private static final int DRIVE_PEAK_CURRENT_LIMIT = 60;
-            private static final double DRIVE_PEAL_CURRENT_DURATION = 0.1;
-            private static final boolean DRIVE_ENABLE_CURRENT_LIMIT = true;
+            public static final int DRIVE_CONTINUOUS_CURRENT_LIMIT = 35;
+            public static final int DRIVE_PEAK_CURRENT_LIMIT = 60;
+            public static final double DRIVE_PEAK_CURRENT_DURATION = 0.1;
+            public static final boolean DRIVE_ENABLE_CURRENT_LIMIT = true;
             public static final SupplyCurrentLimitConfiguration DRIVE_CURRENT_LIMIT = new SupplyCurrentLimitConfiguration(
                     DRIVE_ENABLE_CURRENT_LIMIT, DRIVE_CONTINUOUS_CURRENT_LIMIT, DRIVE_PEAK_CURRENT_LIMIT,
-                    DRIVE_PEAL_CURRENT_DURATION);
+                    DRIVE_PEAK_CURRENT_DURATION);
 
             /*------- CANcoder Config ------- */
             /* Angle Encoder Invert */
@@ -218,6 +220,9 @@ public final class Constants {
     }
 
     public static final class VisionConstants {
+
+        public static final String LIMELIGHT_NAME = "limelight1";
+
         public static final Transform3d APRILTAG_CAM_POS = new Transform3d(new Translation3d(0.24345, -0.25397, 0.56859),
                 new Rotation3d(0, -0, 0)); 
 

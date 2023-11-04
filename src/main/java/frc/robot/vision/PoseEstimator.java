@@ -40,6 +40,8 @@ import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.lib.util.logging.loggedObjects.LoggedField;
+import frc.lib.util.poseEstimation.LimelightHelpers;
+
 import static frc.robot.Constants.VisionConstants.*;
 import frc.robot.Constants.SwerveConstants;
 import frc.robot.regressions.KalmanVisionRegression;
@@ -52,10 +54,6 @@ public class PoseEstimator {
     public SwerveDrivePoseEstimator poseEstimatorNonVision;
     private AprilTagFieldLayout layout;
 
-    private final Pose2d[] cubeNodePoses = new Pose2d[6];
-
-    public PoseEstimationState state = PoseEstimationState.ALL;
-
     public PoseEstimator(LoggedField logger, Rotation2d gyroAngle, SwerveModulePosition[] positions) {
 
         // Pose Estimator
@@ -64,9 +62,7 @@ public class PoseEstimator {
         // } catch (IOException e) {
         //     e.printStackTrace();
         // }
-
         
-
         poseEstimatorNonVision = new SwerveDrivePoseEstimator(SwerveConstants.KINEMATICS, gyroAngle, positions,
                 new Pose2d(), STATE_STD_DEVS, VecBuilder.fill(0, 0, 0));
 
@@ -79,111 +75,38 @@ public class PoseEstimator {
         logger.addPose2d("NonVisionPoseEstimation", () -> poseEstimatorNonVision.getEstimatedPosition(), false);
     }
 
-    public void justUpdate(Swerve swerve) {
+    public void updateOdometry(Swerve swerve) {
         poseEstimator.update(swerve.getYaw(), swerve.getPositions());
         poseEstimatorNonVision.update(swerve.getYaw(), swerve.getPositions());
     }
 
-    private static GenericEntry poseFinderOuttakePercent = Shuffleboard.getTab("vis").add("std", 0)
-            .withWidget(BuiltInWidgets.kNumberSlider)
-            .withProperties(Map.of("min", 0, "max", 2, "Block increment", 0.01)).getEntry();
+    /**
+     * 
+     * @param swerve Swerve subsystem instance
+     * @param referencePose Pose2d of the robot at the time of the vision measurement
+     */
+    public void updateVisionMeasurement(Swerve swerve, Pose2d referencePose) {
+    
 
-    // public void updateOdometry(Swerve swerve, Pose2d referencePose) {
-    //     PhotonPipelineResult result = APRILTAG_CAM.getLatestResult();
-    //     SmartDashboard.putString("Vision State", state.toString());
-    //     if (result.hasTargets()) {
-    //         double smallestPoseDelta = 10e9;
-    //         EstimatedRobotPose lowestDeltaPose = null;
-    //         Translation2d robotToTarget = null;
+            // if (robotToTarget == null)
+            //     return;
 
-    //         for (PhotonTrackedTarget target : result.getTargets()) {
-    //             int id = target.getFiducialId();
-    //             if (id > 8 || id < 1)
-    //                 continue;
+            
+            double tagDistance = LimelightHelpers.getTargetPose3d_CameraSpace(LIMELIGHT_NAME).getTranslation().getNorm(); // Find direct distance to target for std dev calculation
+            double xyStdDev2 = MathUtil.clamp(0.002 * Math.pow(2.2, tagDistance), 0, 1);
 
 
-    //             switch (state) {
-    //                 case CABLE:
-    //                     if (id != 8 && id != 1)
-    //                         continue;
-    //                         break;
-    //                 case NON:
-    //                     if (id != 6 && id != 3)
-    //                         continue;
-    //                         break;
-    //             }
+            Pose2d poseFromVision =  LimelightHelpers.getBotPose2d(LIMELIGHT_NAME);
+            double poseFromVisionTimestamp = Timer.getFPGATimestamp() - LimelightHelpers.getLatency_Capture(LIMELIGHT_NAME) - LimelightHelpers.getLatency_Pipeline("limelight1");
 
-    //             Pose3d targetPosition = layout.getTagPose(id).get();
+            poseEstimator.addVisionMeasurement(poseFromVision, poseFromVisionTimestamp, VecBuilder.fill(xyStdDev2, xyStdDev2, 0));
 
-    //             // TODO check sign of pitch and maybe add pitch from gyro
-    //             Rotation3d gyroCalculatedAngle;
-    //             double yaw = swerve.getYawLatency(result.getLatencyMillis() + 15).getRadians();
-
-    //             if (id > 4)
-    //                 gyroCalculatedAngle = new Rotation3d(0,
-    //                         -APRILTAG_CAM_POS.getRotation().getY()
-    //                                 + swerve.getGyroAtTime(result.getTimestampSeconds()).getY(),
-    //                         -yaw);
-
-    //             else
-    //                 gyroCalculatedAngle = new Rotation3d(0,
-    //                         -APRILTAG_CAM_POS.getRotation().getY()
-    //                                 + swerve.getGyroAtTime(result.getLatencyMillis()).getY(),
-    //                         (yaw > 0 ? 1 : -1) * Math.PI - yaw);
-
-    //             Translation3d transformToTarget = target.getBestCameraToTarget().getTranslation();
-
-    //             Transform2d lastTransformToTarget = referencePose.minus(targetPosition.toPose2d());
-
-    //             SmartDashboard.putNumber("GyroCalcangle", Math.toDegrees(gyroCalculatedAngle.getZ()));
-    //             SmartDashboard.putNumber("target angle",
-    //                     Math.toDegrees(target.getBestCameraToTarget().getRotation().getZ()));
-
-    //             // Pose3d estimatedPose = PhotonUtils.estimateFieldToRobotAprilTag(
-    //             // new Transform3d(transformToTarget, gyroCalculatedAngle), targetPosition,
-    //             // APRILTAG_CAM_POS);
-    //             Pose3d estimatedPose = targetPosition
-    //                     .transformBy(new Transform3d(transformToTarget, gyroCalculatedAngle).inverse())
-    //                     .transformBy(APRILTAG_CAM_POS.inverse());
-
-    //             // SmartDashboard.putNumber("estimatedPose", estimatedPose.getX());
-
-    //             double poseDelta = referencePose.getTranslation()
-    //                     .getDistance(estimatedPose.getTranslation().toTranslation2d());
-    //             if (poseDelta < smallestPoseDelta) {
-    //                 smallestPoseDelta = poseDelta;
-    //                 lowestDeltaPose = new EstimatedRobotPose(estimatedPose, result.getTimestampSeconds(),
-    //                         List.of(target));
-    //                 robotToTarget = lastTransformToTarget.getTranslation();
-    //             }
-    //             // SmartDashboard.putNumber("xVision", transformToTarget.getX() +
-    //             // APRILTAG_CAM_POS.getX());
-    //             // SmartDashboard.putNumber("yVision", transformToTarget.getY());
-
-    //         }
-
-    //         if (robotToTarget == null)
-    //             return;
-
-    //         double tagDistance = Math.abs(robotToTarget.getNorm());
-    //         double xyStdDev2 = MathUtil.clamp(0.002 * Math.pow(2.2, tagDistance), 0, 1);
-    //         double xyStdDev = poseFinderOuttakePercent.getDouble(0);
-
-    //         // SmartDashboard.putNumber("xyStdDev", xyStdDev2);
-    //         // SmartDashboard.putNumber("Calculated", xyStdDev2);
-    //         // SmartDashboard.putNumber("Dist", tagDistance);
-
-    //         poseEstimator.addVisionMeasurement(lowestDeltaPose.estimatedPose.toPose2d(),
-    //                 lowestDeltaPose.timestampSeconds, VecBuilder.fill(xyStdDev2, xyStdDev2, xyStdDev));
-
-    //     }
-    // }
+        }
+    
 
     public Pose2d getPose() {
         return poseEstimator.getEstimatedPosition();
     }
-
-
 
     public Pose2d getPoseNonVision() {
         return poseEstimatorNonVision.getEstimatedPosition();
@@ -227,17 +150,8 @@ public class PoseEstimator {
         poseEstimatorNonVision.resetPosition(gyroAngle, swerveModulePositions, pose);
     }
 
-    public void alignPoseNonVisionEstimator(SwerveModulePosition[] swerveModulePositions) {
-        poseEstimatorNonVision.resetPosition(getPose().getRotation(), swerveModulePositions, getPose());
-    }
-
     public AprilTagFieldLayout getField() {
         return layout;
     }
 
-    public enum PoseEstimationState {
-        ALL,
-        CABLE,
-        NON;
-    }
 }

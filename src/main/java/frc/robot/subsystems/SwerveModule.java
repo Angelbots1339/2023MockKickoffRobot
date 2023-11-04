@@ -5,18 +5,22 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.lib.math.Conversions;
-import frc.lib.team254.util.TalonFXFactory;
 import frc.lib.team254.util.TalonUtil;
-import frc.lib.util.CTREModuleState;
-import frc.lib.util.SwerveModuleConstants;
+import frc.lib.util.Conversions;
+import frc.lib.util.TalonFXFactory;
+import frc.lib.util.swerve.SwerveMath;
+import frc.lib.util.swerve.SwerveModuleConstants;
 import frc.robot.Constants;
 
 import static frc.robot.Constants.SwerveConstants.FalconConfigConstants.*;
 
-import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenix.motorcontrol.DemandType;
-import com.ctre.phoenix.motorcontrol.can.TalonFX;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.DutyCycleOut;
+import com.ctre.phoenix6.controls.PositionVoltage;
+import com.ctre.phoenix6.controls.VelocityDutyCycle;
+import com.ctre.phoenix6.controls.VelocityVoltage;
+// import com.ctre.phoenix.motorcontrol.can.TalonFX;
+import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix.sensors.CANCoder;
 
 public class SwerveModule {
@@ -43,50 +47,75 @@ public class SwerveModule {
 
                 /* Angle Motor Config */
                 angleMotor = TalonFXFactory.createDefaultTalon(moduleConstants.angleMotorID, Constants.CANIVORE);
-                //angleMotor = new WPI_TalonFX(moduleConstants.angleMotorID, Constants.CANIVORE);
+                // angleMotor = new WPI_TalonFX(moduleConstants.angleMotorID,
+                // Constants.CANIVORE);
                 configAngleMotor();
 
                 /* Drive Motor Config */
-                 driveMotor = TalonFXFactory.createDefaultTalon(moduleConstants.driveMotorID, Constants.CANIVORE);
-                //driveMotor = new WPI_TalonFX(moduleConstants.driveMotorID, Constants.CANIVORE);
+                driveMotor = TalonFXFactory.createDefaultTalon(moduleConstants.driveMotorID, Constants.CANIVORE);
+                // driveMotor = new WPI_TalonFX(moduleConstants.driveMotorID,
+                // Constants.CANIVORE);
                 configDriveMotor();
-              
 
                 lastAngle = getState().angle;
         }
 
+        /**
+         * 
+         * @param desiredState
+         * @param isOpenLoop
+         */
         public void setDesiredState(SwerveModuleState desiredState, boolean isOpenLoop) {
                 /*
                  * This is a custom optimize function, since default WPILib optimize assumes
                  * continuous controller which CTRE and Rev onboard is not
                  */
-                desiredState = CTREModuleState.optimize(desiredState, getState().angle);
+                desiredState = SwerveMath.optimize(desiredState, getState().angle);
                 setAngle(desiredState);
                 setSpeed(desiredState, isOpenLoop);
                 this.desiredState = desiredState;
         }
-        public void setDesiredStateStrict(SwerveModuleState desiredState, boolean isOpenLoop) {
 
-                desiredState = CTREModuleState.optimize(desiredState, getState().angle);
-                setAngleStrict(desiredState);
-                setSpeed(desiredState, isOpenLoop);
-                this.desiredState = desiredState;
+        /**
+        *
+        * @param desiredState
+        * @param isOpenLoop
+        */
+        public void setDesiredStateStrict(SwerveModuleState desiredState, boolean
+        isOpenLoop) {
+
+        desiredState = SwerveMath.optimize(desiredState, getState().angle);
+        setAngleStrict(desiredState);
+        setSpeed(desiredState, isOpenLoop);
+        this.desiredState = desiredState;
         }
 
+        /**
+         * 
+         * @param desiredState
+         * @param isOpenLoop
+         */
         private void setSpeed(SwerveModuleState desiredState, boolean isOpenLoop) {
                 if (isOpenLoop) {
                         double percentOutput = desiredState.speedMetersPerSecond / Constants.SwerveConstants.MAX_SPEED;
-                        driveMotor.set(ControlMode.PercentOutput, percentOutput);
+                        driveMotor.setControl(new DutyCycleOut(percentOutput));
                 } else {
-                        double velocity = Conversions.MPSToFalcon(desiredState.speedMetersPerSecond,
-                        Constants.SwerveConstants.WHEEL_CIRCUMFERENCE,
-                        Constants.SwerveConstants.DRIVE_GEAR_RATIO);
+                        double velocity = Conversions.MPSToRPS(desiredState.speedMetersPerSecond,
+                                        Constants.SwerveConstants.WHEEL_CIRCUMFERENCE,
+                                        Constants.SwerveConstants.DRIVE_GEAR_RATIO);
                         // if(Math.abs(desiredState.speedMetersPerSecond) <= MIN_CLOSE_LOOP_SPEED){
-                        //         driveMotor.set(ControlMode.PercentOutput, feedforward.calculate(desiredState.speedMetersPerSecond));
-                        //         return;    
+                        // driveMotor.set(ControlMode.PercentOutput,
+                        // feedforward.calculate(desiredState.speedMetersPerSecond));
+                        // return;
                         // }
-                        driveMotor.set(ControlMode.Velocity, velocity, DemandType.ArbitraryFeedForward,
-                                        feedforward.calculate(desiredState.speedMetersPerSecond));
+
+                        VelocityVoltage velocityVoltage = new VelocityVoltage(velocity).withSlot(0);
+                        driveMotor.setControl(velocityVoltage.withVelocity(velocity)
+                                        .withFeedForward(feedforward.calculate(desiredState.speedMetersPerSecond)));
+
+                        // driveMotor.setControl(new VelocityVoltage(velocity)) (ControlMode.Velocity,
+                        // velocity, DemandType.ArbitraryFeedForward,
+                        // feedforward.calculate(desiredState.speedMetersPerSecond));
                 }
         }
 
@@ -97,23 +126,34 @@ public class SwerveModule {
                                                 : desiredState.angle; // Prevent rotating module if speed is less then
                                                                       // 1%. Prevents Jittering.
 
-                angleMotor.set(ControlMode.Position,
-                                Conversions.degreesToFalcon(angle.getDegrees(),
-                                                Constants.SwerveConstants.ANGLE_GEAR_RATIO));
+                // angleMotor.setControl(new PositionVoltage(ANGLE_KF,
+                // DRIVE_SENSOR_VELOCITY_MEAS_WINDOW, CANCODER_INVERT, ANGLE_KD,
+                // DRIVE_SENSOR_VELOCITY_MEAS_WINDOW, CANCODER_INVERT)) (ControlMode.Position,
+                // Conversions.degreesToFalcon(angle.getDegrees(),
+                // Constants.SwerveConstants.ANGLE_GEAR_RATIO));
+
+                PositionVoltage positionVoltage = new PositionVoltage(Conversions.degreesToRotations(angle.getDegrees(),
+                                Constants.SwerveConstants.ANGLE_GEAR_RATIO)).withSlot(0);
+
+                angleMotor.setControl(positionVoltage);
+
                 lastAngle = angle;
         }
         private void setAngleStrict(SwerveModuleState desiredState) {
-                // Prevent rotating module if speed is less then
-                                                                      // 1%. Prevents Jittering.
 
-                angleMotor.set(ControlMode.Position,
-                                Conversions.degreesToFalcon(desiredState.angle.getDegrees(),
-                                                Constants.SwerveConstants.ANGLE_GEAR_RATIO));
-                lastAngle = desiredState.angle;
+                PositionVoltage positionVoltage = new PositionVoltage(Conversions.degreesToRotations(desiredState.angle.getDegrees(),
+                Constants.SwerveConstants.ANGLE_GEAR_RATIO)).withSlot(0);
+                
+                angleMotor.setControl(positionVoltage);
+
+        // angleMotor.set(ControlMode.Position,
+        // Conversions.degreesToFalcon(desiredState.angle.getDegrees(),
+        // Constants.SwerveConstants.ANGLE_GEAR_RATIO));
+        lastAngle = desiredState.angle;
         }
 
         private Rotation2d getAngle() {
-                return Rotation2d.fromDegrees(Conversions.falconToDegrees(angleMotor.getSelectedSensorPosition(),
+                return Rotation2d.fromDegrees(Conversions.rotationsToDegrees(angleMotor.getPosition().getValue(),
                                 Constants.SwerveConstants.ANGLE_GEAR_RATIO));
         }
 
@@ -128,21 +168,22 @@ public class SwerveModule {
         public TalonFX getDriveMotor() {
                 return angleMotor;
         }
-        public void resetDriveEncoder(){
-        driveMotor.setSelectedSensorPosition(0);
+
+        public void resetDriveEncoder() {
+                driveMotor.setPosition(0);
         }
 
         public double getEncoderInMeters() {
-                return Conversions.falconToMeters(driveMotor.getSelectedSensorPosition(),
+                return Conversions.rotationsToMeters(driveMotor.getPosition().getValue(),
                                 Constants.SwerveConstants.WHEEL_CIRCUMFERENCE,
                                 Constants.SwerveConstants.DRIVE_GEAR_RATIO);
         }
 
         public void resetToAbsolute() {
-                double absolutePosition = Conversions.degreesToFalcon(
+                double absolutePosition = Conversions.degreesToRotations(
                                 angleEncoder.getAbsolutePosition() - angleOffset.getDegrees(),
                                 Constants.SwerveConstants.ANGLE_GEAR_RATIO);
-                angleMotor.setSelectedSensorPosition(absolutePosition);
+                angleMotor.setPosition(absolutePosition);
 
         }
 
@@ -166,90 +207,72 @@ public class SwerveModule {
 
         private void configAngleMotor() {
 
-                TalonUtil.checkError(
-                                angleMotor.configVoltageCompSaturation(Constants.MAX_VOLTAGE, Constants.CAN_TIMEOUT),
-                                "failed to config voltage comp angle motor mod: " + moduleNumber);
-                TalonUtil.checkError(angleMotor.configSupplyCurrentLimit(ANGLE_CURRENT_LIMIT, Constants.CAN_TIMEOUT),
-                                "failed to config current limit angle motor mod: " + moduleNumber);
-                TalonUtil.checkError(angleMotor.config_kP(0, ANGLE_KP, Constants.CAN_TIMEOUT),
-                                "failed to config kP angle motor mod: "
-                                                + moduleNumber);
-                TalonUtil.checkError(angleMotor.config_kI(0, ANGLE_KI, Constants.CAN_TIMEOUT),
-                                "failed to config kI angle motor mod: "
-                                                + moduleNumber);
-                TalonUtil.checkError(angleMotor.config_kD(0, ANGLE_KD, Constants.CAN_TIMEOUT),
-                                "failed to config kD angle motor mod: "
-                                                + moduleNumber);
-                TalonUtil.checkError(angleMotor.config_kF(0, ANGLE_KF, Constants.CAN_TIMEOUT),
-                                "failed to config kF angle motor mod: " + moduleNumber);
-                TalonUtil.checkError(
-                                angleMotor.configIntegratedSensorInitializationStrategy(ANGLE_SENSOR_INIT_STRATEGY,
-                                                Constants.CAN_TIMEOUT),
-                                "failed to config sensor init strategy angle motor mod: " + moduleNumber);
+                TalonFXConfiguration angleMotorConfig = new TalonFXConfiguration();
+                angleMotor.getConfigurator().refresh(angleMotorConfig, 0.1);
 
-                angleMotor.selectProfileSlot(0, 0);
-                angleMotor.enableVoltageCompensation(true);
-                angleMotor.setInverted(ANGLE_MOTOR_INVERT);
-                angleMotor.setNeutralMode(ANGLE_NEUTRAL_MODE);
+                angleMotorConfig.Slot0.kP = ANGLE_KP;
+                angleMotorConfig.Slot0.kI = ANGLE_KI;
+                angleMotorConfig.Slot0.kD = ANGLE_KD;
+
+
+                angleMotorConfig.CurrentLimits.SupplyCurrentLimit = ANGLE_CONTINUOUS_CURRENT_LIMIT;
+                angleMotorConfig.CurrentLimits.SupplyCurrentLimitEnable = ANGLE_ENABLE_CURRENT_LIMIT;
+                angleMotorConfig.CurrentLimits.SupplyTimeThreshold = ANGLE_PEAK_CURRENT_DURATION;
+
+                angleMotorConfig.ClosedLoopRamps.VoltageClosedLoopRampPeriod = CLOSED_LOOP_RAMP;
+                angleMotorConfig.OpenLoopRamps.VoltageOpenLoopRampPeriod = OPEN_LOOP_RAMP;
+
+                angleMotorConfig.Feedback.FeedbackRotorOffset = 0;
+
+                angleMotorConfig.MotorOutput.Inverted = ANGLE_MOTOR_INVERT;
+                angleMotorConfig.MotorOutput.NeutralMode = ANGLE_NEUTRAL_MODE;
+
                 resetToAbsolute();
         }
 
         private void configDriveMotor() {
-                TalonUtil.checkError(
-                                driveMotor.configVoltageCompSaturation(Constants.MAX_VOLTAGE, Constants.CAN_TIMEOUT),
-                                "failed to config voltage comp drive motor mod: " + moduleNumber);
-                TalonUtil.checkError(driveMotor.configSupplyCurrentLimit(DRIVE_CURRENT_LIMIT, Constants.CAN_TIMEOUT),
-                                "failed to config current limit drive motor mod: " + moduleNumber);
-                TalonUtil.checkError(driveMotor.config_kP(0, DRIVE_KP, Constants.CAN_TIMEOUT),
-                                "failed to config kP drive motor mod: " + moduleNumber);
-                TalonUtil.checkError(driveMotor.config_kD(0, DRIVE_KD, Constants.CAN_TIMEOUT),
-                                "failed to config kD drive motor mod: " + moduleNumber);
-                TalonUtil.checkError(driveMotor.config_kF(0, DRIVE_KF, Constants.CAN_TIMEOUT),
-                                "failed to config kF drive motor mod: " + moduleNumber);
-                TalonUtil.checkError(
-                                driveMotor.configIntegratedSensorInitializationStrategy(DRIVE_SENSOR_INIT_STRATEGY,
-                                                Constants.CAN_TIMEOUT),
-                                "failed to config sensor init strategy drive motor mod: " + moduleNumber);
-                TalonUtil.checkError(
-                                driveMotor.configVelocityMeasurementPeriod(DRIVE_SENSOR_VELOCITY_MEAS_PERIOD,
-                                                Constants.CAN_TIMEOUT),
-                                "failed to config velocity measurement period drive motor mod: " + moduleNumber);
-                TalonUtil.checkError(
-                                driveMotor.configVelocityMeasurementWindow(DRIVE_SENSOR_VELOCITY_MEAS_WINDOW,
-                                                Constants.CAN_TIMEOUT),
-                                "failed to config velocity measurement window drive motor mod: " + moduleNumber);
-                TalonUtil.checkError(driveMotor.configOpenloopRamp(OPEN_LOOP_RAMP),
-                                "failed to config open loop ramp drive motor mod: " + moduleNumber);
-                TalonUtil.checkError(driveMotor.configClosedloopRamp(CLOSED_LOOP_RAMP),
-                                "failed to config closed loop ramp drive motor mod: " + moduleNumber);
 
+                TalonFXConfiguration driveMotorConfig = new TalonFXConfiguration();
+                angleMotor.getConfigurator().refresh(driveMotorConfig, 0.1);
 
-                driveMotor.setSelectedSensorPosition(0);
-                driveMotor.selectProfileSlot(0, 0);
-                driveMotor.enableVoltageCompensation(true);
-                driveMotor.setInverted(DRIVE_MOTOR_INVERT);
-                driveMotor.setNeutralMode(DRIVE_NEUTRAL_MODE);
+                driveMotorConfig.Slot0.kP = DRIVE_KP;
+                driveMotorConfig.Slot0.kI = 0;
+                driveMotorConfig.Slot0.kD = DRIVE_KD;
+
+                driveMotorConfig.CurrentLimits.SupplyCurrentLimit = DRIVE_CONTINUOUS_CURRENT_LIMIT;
+                driveMotorConfig.CurrentLimits.SupplyCurrentLimitEnable = DRIVE_ENABLE_CURRENT_LIMIT;
+                driveMotorConfig.CurrentLimits.SupplyTimeThreshold = DRIVE_PEAK_CURRENT_DURATION;
+
+                driveMotorConfig.ClosedLoopRamps.VoltageClosedLoopRampPeriod = CLOSED_LOOP_RAMP;
+                driveMotorConfig.OpenLoopRamps.VoltageOpenLoopRampPeriod = OPEN_LOOP_RAMP;
+
+                driveMotorConfig.MotorOutput.Inverted = DRIVE_MOTOR_INVERT;
+                driveMotorConfig.MotorOutput.NeutralMode = DRIVE_NEUTRAL_MODE;
+
+                driveMotor.setPosition(0);
+
         }
 
         public SwerveModuleState getState() {
                 return new SwerveModuleState(
-                                Conversions.falconToMPS(driveMotor.getSelectedSensorVelocity(),
+                                Conversions.RPSToMPS(driveMotor.getVelocity().getValue(),
                                                 Constants.SwerveConstants.WHEEL_CIRCUMFERENCE,
                                                 Constants.SwerveConstants.DRIVE_GEAR_RATIO),
                                 getAngle());
         }
+
         public SwerveModuleState getDesiredState() {
                 return desiredState;
         }
 
         public SwerveModulePosition getPosition() {
-                return new SwerveModulePosition(Conversions.falconToMeters(driveMotor.getSelectedSensorPosition(),
+                return new SwerveModulePosition(Conversions.rotationsToMeters(driveMotor.getPosition().getValue(),
                                 Constants.SwerveConstants.WHEEL_CIRCUMFERENCE,
                                 Constants.SwerveConstants.DRIVE_GEAR_RATIO), getAngle());
         }
 
         public double getRotations() {
-                return Conversions.falconToRotations(driveMotor.getSelectedSensorPosition(),
-                                Constants.SwerveConstants.DRIVE_GEAR_RATIO);
+                return Conversions.gearRatioConvert(driveMotor.getPosition().getValue(), Constants.SwerveConstants.DRIVE_GEAR_RATIO);
         }
+
 }

@@ -4,7 +4,7 @@
 
 package frc.lib.util.logging.loggedObjects;
 
-import com.ctre.phoenix.motorcontrol.can.TalonFX;
+import com.ctre.phoenix6.hardware.TalonFX;
 
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
@@ -31,21 +31,21 @@ public class LoggedFalcon extends LoggedObject<TalonFX> {
     @Override
     public void initializeShuffleboard() {
         ShuffleboardLayout layout = getTab().getLayout(name, BuiltInLayouts.kList);
-        addDoubleToShuffleboard("Stator Current", () ->  object.getStatorCurrent(), layout);
-        addDoubleToShuffleboard("Supply Current", () ->  object.getSupplyCurrent(), layout);
-        addDoubleToShuffleboard("Bus Voltage", () ->  object.getBusVoltage(), layout);
-        addDoubleToShuffleboard("Output Voltage", () ->  object.getMotorOutputVoltage(), layout);
-        addDoubleToShuffleboard("Temp", () ->  object.getTemperature(), layout);
+        addDoubleToShuffleboard("Stator Current", () ->  object.getStatorCurrent().getValue(), layout);
+        addDoubleToShuffleboard("Supply Current", () ->  object.getSupplyCurrent().getValue(), layout);
+        addDoubleToShuffleboard("Bus Voltage", () ->  object.getSupplyVoltage().getValue(), layout);
+        addDoubleToShuffleboard("Output Voltage", () ->  object.getMotorVoltage().getValue(), layout);
+        addDoubleToShuffleboard("Temp", () ->  object.getDeviceTemp().getValue(), layout);
 
     }
 
     @Override
     public void initializeDataLog() {
-        addDoubleToOnboardLog("Stator Current", () -> object.getStatorCurrent());
-        addDoubleToOnboardLog("Supply Current", () -> object.getSupplyCurrent());
-        addDoubleToOnboardLog("Bus Voltage", () -> object.getBusVoltage());
-        addDoubleToOnboardLog("Output Voltage", () -> object.getMotorOutputVoltage());
-        addDoubleToOnboardLog("Temp", () -> object.getTemperature());
+        addDoubleToOnboardLog("Stator Current", () -> object.getStatorCurrent().getValue());
+        addDoubleToOnboardLog("Supply Current", () -> object.getSupplyCurrent().getValue());
+        addDoubleToOnboardLog("Bus Voltage", () -> object.getSupplyVoltage().getValue());
+        addDoubleToOnboardLog("Output Voltage", () -> object.getMotorVoltage().getValue());
+        addDoubleToOnboardLog("Temp", () -> object.getDeviceTemp().getValue());
     }
 
 
