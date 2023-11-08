@@ -6,15 +6,19 @@ package frc.robot;
 
 import frc.lib.util.Conversions;
 import frc.robot.commands.TeleopSwerve;
+import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Swerve;
 
 import java.util.function.Supplier;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.wpilibj.XboxController;  
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 /**
@@ -32,6 +36,10 @@ public class RobotContainer {
   private final XboxController operator = new XboxController(1);
 
   private final Swerve swerve = new Swerve();
+  private final Intake intake = new Intake();
+  private final Shooter shooter = new Shooter();
+
+  /****** Driver Controls ******/
 
   // Maps to rect than applys deadband
   private Supplier<Double> translation = () -> MathUtil.applyDeadband(Conversions.mapJoystick(-driver.getLeftY(),
@@ -50,23 +58,31 @@ public class RobotContainer {
     return previousAngle;
   };
 
+  private final Trigger zeroGyro = new JoystickButton(driver,
+      XboxController.Button.kStart.value);
+
+
+      
+  /****** Operator Controls ******/
+  private final Trigger toggleIntakeDeploy = new JoystickButton(operator,
+      XboxController.Button.kA.value);
+
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
   public RobotContainer() {
 
-   setDefaultCommands();
+    setDefaultCommands();
 
     // Configure the trigger bindings
     configureBindings();
   }
 
-
   public void setDefaultCommands() {
     swerve.setDefaultCommand(
-      new TeleopSwerve(swerve, translation, strafe, rotation, angle, () -> false,
-          true // Is field relative
-      ));
+        new TeleopSwerve(swerve, translation, strafe, rotation, angle, () -> false,
+            true // Is field relative
+        ));
   }
 
   /**
@@ -84,7 +100,16 @@ public class RobotContainer {
    * joysticks}.
    */
   private void configureBindings() {
+    configureOperatorBindings();
+    configureDriverBindings();
+  }
 
+  private void configureDriverBindings() {
+    zeroGyro.onTrue(new InstantCommand(swerve::resetGyroTowardsDriverStation));
+  }
+
+  private void configureOperatorBindings() {
+    toggleIntakeDeploy.onTrue(new InstantCommand(intake.isIntakeDeployed() ? intake::retractIntake : intake::deployIntake));
   }
 
   /**

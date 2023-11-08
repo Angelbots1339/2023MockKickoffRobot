@@ -5,9 +5,10 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.lib.team254.util.TalonUtil;
 import frc.lib.util.Conversions;
 import frc.lib.util.TalonFXFactory;
+import frc.lib.util.ErrorCheckUtil;
+import frc.lib.util.swerve.SwerveEncoder;
 import frc.lib.util.swerve.SwerveMath;
 import frc.lib.util.swerve.SwerveModuleConstants;
 import frc.robot.Constants;
@@ -21,7 +22,7 @@ import com.ctre.phoenix6.controls.VelocityDutyCycle;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 // import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix6.hardware.TalonFX;
-import com.ctre.phoenix.sensors.CANCoder;
+import com.ctre.phoenix6.hardware.CANcoder;
 
 public class SwerveModule {
         public int moduleNumber;
@@ -30,7 +31,7 @@ public class SwerveModule {
 
         private TalonFX angleMotor;
         private TalonFX driveMotor;
-        private CANCoder angleEncoder;
+        private SwerveEncoder angleEncoder;
 
         private SwerveModuleState desiredState = new SwerveModuleState();
 
@@ -42,7 +43,7 @@ public class SwerveModule {
                 this.angleOffset = moduleConstants.angleOffset;
 
                 /* Angle Encoder Config */
-                angleEncoder = new CANCoder(moduleConstants.cancoderID, Constants.CANIVORE);
+                angleEncoder = new SwerveEncoder(moduleConstants.cancoderID, Constants.CANIVORE, null);
                 configAngleEncoder();
 
                 /* Angle Motor Config */
@@ -188,21 +189,7 @@ public class SwerveModule {
         }
 
         private void configAngleEncoder() {
-                TalonUtil.checkError(angleEncoder.configFactoryDefault(Constants.CAN_TIMEOUT),
-                                "failed to config factory default CANCoder mod: " + moduleNumber);
-                TalonUtil.checkError(
-                                angleEncoder.configSensorInitializationStrategy(ANGLE_SENSOR_INIT_STRATEGY,
-                                                Constants.CAN_TIMEOUT),
-                                "failed to config sensor init strategy CANCoder mod: " + moduleNumber);
-                TalonUtil.checkError(
-                                angleEncoder.configAbsoluteSensorRange(CANCODER_ABSOLUTE_SENSOR_RANGE,
-                                                Constants.CAN_TIMEOUT),
-                                "failed to config absolute sensor range CANCoder mod: " + moduleNumber);
-                TalonUtil.checkError(
-                                angleEncoder.configFeedbackCoefficient(0.087890625, "deg", CANCODER_SENSOR_TIME_BASE,
-                                                Constants.CAN_TIMEOUT),
-                                "failed to config feedback coefficient CANCoder mod: " + moduleNumber);
-
+                angleEncoder.configure(moduleNumber);
         }
 
         private void configAngleMotor() {

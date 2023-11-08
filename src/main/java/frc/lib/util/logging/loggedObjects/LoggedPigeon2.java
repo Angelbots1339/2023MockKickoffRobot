@@ -6,7 +6,7 @@ package frc.lib.util.logging.loggedObjects;
 
 import java.util.Arrays;
 
-import com.ctre.phoenix.sensors.Pigeon2;
+import com.ctre.phoenix6.hardware.Pigeon2;
 
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -36,12 +36,14 @@ public class LoggedPigeon2 extends LoggedObject<Pigeon2> {
     @Override
     protected void initializeShuffleboard() {
         ShuffleboardLayout layout = getTab().getLayout(name, BuiltInLayouts.kList).withSize(1, 3);
-        addDoubleToShuffleboard("Yaw", () -> object.getYaw(), layout);
-        addDoubleToShuffleboard("Pitch", () -> object.getPitch(), layout);
+        addDoubleToShuffleboard("Yaw", () -> object.getYaw().getValue(), layout);
+        addDoubleToShuffleboard("Pitch", () -> object.getPitch().getValue(), layout);
 
         layout.addDoubleArray(name, () -> {
             short[] accel = new short[3];
-            object.getBiasedAccelerometer(accel);
+            accel[0] = object.getAccelerationX().getValue().shortValue();
+            accel[1] = object.getAccelerationY().getValue().shortValue();
+            accel[2] = object.getAccelerationZ().getValue().shortValue();
             return new double[]{accel[0],accel[1],accel[2]};
         }).withWidget(BuiltInWidgets.k3AxisAccelerometer);
 
@@ -49,13 +51,15 @@ public class LoggedPigeon2 extends LoggedObject<Pigeon2> {
 
     @Override
     protected void initializeDataLog() { 
-        addDoubleToOnboardLog("Yaw", () -> object.getYaw());
-        addDoubleToOnboardLog("Pitch", () -> object.getPitch());
-        addDoubleToOnboardLog("Roll", () -> object.getRoll());
+        addDoubleToOnboardLog("Yaw", () -> object.getYaw().getValue());
+        addDoubleToOnboardLog("Pitch", () -> object.getPitch().getValue());
+        addDoubleToOnboardLog("Roll", () -> object.getRoll().getValue());
 
         addDoubleArrayToOnboardLog("Accelerometer [x,y,z]", () -> {
             short[] accel = new short[3];
-            object.getBiasedAccelerometer(accel);
+            accel[0] = object.getAccelerationX().getValue().shortValue();
+            accel[1] = object.getAccelerationY().getValue().shortValue();
+            accel[2] = object.getAccelerationZ().getValue().shortValue();
             return new double[]{accel[0],accel[1],accel[2]};
         });
 

@@ -8,8 +8,11 @@ import com.ctre.phoenix.sensors.AbsoluteSensorRange;
 import com.ctre.phoenix.sensors.SensorInitializationStrategy;
 import com.ctre.phoenix.sensors.SensorTimeBase;
 import com.ctre.phoenix.sensors.SensorVelocityMeasPeriod;
+import com.ctre.phoenix6.signals.AbsoluteSensorRangeValue;
+import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import com.ctre.phoenix6.signals.SensorDirectionValue;
 
 import edu.wpi.first.math.MatBuilder;
 import edu.wpi.first.math.Matrix;
@@ -23,6 +26,7 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import frc.lib.util.swerve.SwerveModuleConstants;
 
 
@@ -33,6 +37,9 @@ public final class Constants {
     public static final String CANIVORE = "canivore";
     public static final int MAX_VOLTAGE = 12;
     public static final int CAN_TIMEOUT = 100; // ms
+
+    public static final PneumaticsModuleType PNEUMATIC_TYPE = PneumaticsModuleType.CTREPCM;
+
 
     public static final class SwerveConstants {
 
@@ -152,9 +159,9 @@ public final class Constants {
 
             /*------- CANcoder Config ------- */
             /* Angle Encoder Invert */
-            public static final boolean CANCODER_INVERT = false;
+            public static final SensorDirectionValue CANCODER_INVERT = SensorDirectionValue.CounterClockwise_Positive;
 
-            public static final AbsoluteSensorRange CANCODER_ABSOLUTE_SENSOR_RANGE = AbsoluteSensorRange.Unsigned_0_to_360;
+            public static final AbsoluteSensorRangeValue CANCODER_ABSOLUTE_SENSOR_RANGE = AbsoluteSensorRangeValue.Unsigned_0To1;
             public static final SensorInitializationStrategy CANCODER_SENSOR_INIT_STRATEGY = SensorInitializationStrategy.BootToAbsolutePosition;
             public static final SensorTimeBase CANCODER_SENSOR_TIME_BASE = SensorTimeBase.PerSecond;
         }
@@ -217,6 +224,89 @@ public final class Constants {
             public static final double TRANSLATION_PID_TOLERANCE = 0.02;
 
         }
+    }
+
+
+    public static final class IntakeConstants {
+
+        public static final int INTAKE_MOTOR_ID = 15;
+        public static final int INTAKE_SOLENOID_ID = 0;
+        
+
+        public static final InvertedValue INTAKE_MOTOR_INVERT = InvertedValue.Clockwise_Positive;
+        public static final NeutralModeValue INTAKE_MOTOR_NEUTRAL_MODE = NeutralModeValue.Coast;
+
+
+        public static final double INTAKE_DUTY_CYCLE_SPEED = 0.5; // Percentage (0 to 1)
+        public static final double INTAKE_TORQUE_SPEED = 5; // Amps
+
+        public static final double INTAKE_MAX_TORQUE_OUTPUT = 0.5; // Percentage (0 to 1)
+        public static final double INTAKE_TORQUE_DEADBAND = 1; // Amps
+        public static final boolean INTAKE_COAST_WHEN_STOPPED = true; // Amps
+
+
+
+    }
+
+    public static final class ShooterConstants {
+
+
+        // Shooter Motor
+
+        public static final int SHOOTER_MOTOR_ID = 16;
+
+        public static final double SHOOTER_MOTOR_KP = 0;
+        public static final double SHOOTER_MOTOR_KI = 0;
+        public static final double SHOOTER_MOTOR_KD = 0;
+
+        public static final double SHOOTER_MOTOR_KV = 0;
+
+        public static final InvertedValue SHOOTER_MOTOR_INVERT = InvertedValue.Clockwise_Positive;
+        public static final NeutralModeValue SHOOTER_MOTOR_NEUTRAL_MODE = NeutralModeValue.Coast;
+
+        public static final boolean SHOOTER_MOTOR_ENABLE_FOC = true;
+        public static final int SHOOTER_MOTOR_CONTROL_SLOT = 0;
+
+        public static final double SHOOTER_MOTOR_GEAR_RATIO = 1/1;
+
+
+
+        // Hood Motor
+
+        public static final int HOOD_MOTOR_ID = 17;
+
+
+        public static final double HOOD_MOTOR_KP = 0;
+        public static final double HOOD_MOTOR_KI = 0;
+        public static final double HOOD_MOTOR_KD = 0;
+
+        public static final double HOOD_MOTOR_KG = 0;
+        public static final GravityTypeValue HOOD_MOTOR_GRAVITY_TYPE = GravityTypeValue.Arm_Cosine;
+        
+        public static final InvertedValue HOOD_MOTOR_INVERT = InvertedValue.Clockwise_Positive;
+        public static final NeutralModeValue HOOD_MOTOR_NEUTRAL_MODE = NeutralModeValue.Coast;
+
+        public static final boolean HOOD_MOTOR_ENABLE_FOC = true;
+        public static final int HOOD_MOTOR_CONTROL_SLOT = 0;
+
+
+        public static final double HOOD_MOTOR_GEAR_RATIO = 1/1;
+
+    }
+
+    public static final class IndexerConstants {
+
+        public static final int INDEXER_MOTOR_ID = 17;
+
+        public static final InvertedValue INDEXER_MOTOR_INVERT = InvertedValue.Clockwise_Positive;
+        public static final NeutralModeValue INDEXER_MOTOR_NEUTRAL_MODE = NeutralModeValue.Coast;
+
+        public static final double INDEXER_TORQUE_SPEED = 5; // Amps
+
+        public static final double INDEXER_MAX_TORQUE_OUTPUT = 0.5; // Percentage (0 to 1)
+        public static final double INDEXER_TORQUE_DEADBAND = 1; // Amps
+        public static final boolean INDEXER_COAST_WHEN_STOPPED = true; // Amps
+
     }
 
     public static final class VisionConstants {

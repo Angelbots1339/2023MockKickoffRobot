@@ -8,8 +8,7 @@ import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
-import com.ctre.phoenix.sensors.SensorInitializationStrategy;
-import com.ctre.phoenix.sensors.SensorVelocityMeasPeriod;
+
 
 import frc.lib.team254.util.LazyTalonFX;
 
@@ -28,60 +27,11 @@ public class TalonFXFactory {
         // factory defaults
         public double NEUTRAL_DEADBAND = 0.04;
 
-        public SensorInitializationStrategy SENSOR_INITIALIZATION_STRATEGY = SensorInitializationStrategy.BootToZero;
-        public double SENSOR_OFFSET_DEGREES = 0;
-
         public boolean ENABLE_SUPPLY_CURRENT_LIMIT = true;
         public boolean ENABLE_STATOR_CURRENT_LIMIT = true;
         public int SUPPLY_CURRENT_LIMIT = 40;
         public int STATOR_CURRENT_LIMIT = 80;
-       
-
-        /*
-         * Status 1 (Default Period 10ms):
-         - Applied Motor Output
-         - Fault Information
-         - Limit Switch Information
-         */
-        public int GENERAL_STATUS_FRAME_RATE_MS = 10;
-
-        /*
-         * Status 2 (Default Period 20ms):
-         - Selected Sensor Position (PID 0)
-         - Selected Sensor Velocity (PID 0)
-         - Brushed Supply Current Measurement
-         - Sticky Fault Information
-         */
-        public int SENSOR_FEEDBACK_RATE = 1000;
-        
-        /*
-         * Status 3 (Default Period >100ms):
-         - Quadrature Information
-         */
-        // public int QUAD_ENCODER_STATUS_FRAME_RATE_MS = 1000;
-        
-        /*
-         * Status 4 (Default Period >100ms):
-         - Analog Input
-         - Supply Battery Voltage
-         - Controller Temperature
-         */
-        public int ANALOG_TEMP_VBAT_STATUS_FRAME_RATE_MS = 1000;
-
-        /*Status 8 (Default Period >100ms):
-        - Pulse Width Information 
-        */
-        public int PULSE_WIDTH_STATUS_FRAME_RATE_MS = 1000;
-        public int CONTROL_FRAME_PERIOD_MS = 10;
-        
-
-        public int MOTION_CONTROL_FRAME_PERIOD_MS = 1000;
-
-        
-        
-
-        public SensorVelocityMeasPeriod VELOCITY_MEASUREMENT_PERIOD = SensorVelocityMeasPeriod.Period_100Ms;
-        public int VELOCITY_MEASUREMENT_ROLLING_AVERAGE_WINDOW = 64;
+    
 
         public double OPEN_LOOP_RAMP_RATE = 0.0;
         public double CLOSED_LOOP_RAMP_RATE = 0.0;
@@ -93,11 +43,7 @@ public class TalonFXFactory {
     static {
         // This control frame value seems to need to be something reasonable to avoid the Talon's
         // LEDs behaving erratically. Potentially try to increase as much as possible.
-        kFollowerConfiguration.CONTROL_FRAME_PERIOD_MS = 100;
-        kFollowerConfiguration.MOTION_CONTROL_FRAME_PERIOD_MS = 1000;
-        kFollowerConfiguration.GENERAL_STATUS_FRAME_RATE_MS = 1000;
-        kFollowerConfiguration.ANALOG_TEMP_VBAT_STATUS_FRAME_RATE_MS = 1000;
-        kFollowerConfiguration.PULSE_WIDTH_STATUS_FRAME_RATE_MS = 1000;
+       
     }
 
     // create a CANTalon with the default (out of the box) configuration
@@ -136,6 +82,7 @@ public class TalonFXFactory {
 
         talon.setControl(new DutyCycleOut(0)); 
         talon.clearStickyFaults(kTimeoutSeconds);
+        talon.setPosition(0);
 
 
         talon.getPosition().setUpdateFrequency(id, kTimeoutSeconds);
@@ -155,6 +102,7 @@ public class TalonFXFactory {
         
 
         talon.optimizeBusUtilization();
+        ErrorCheckUtil.checkError(talon.getConfigurator().apply(motorConfig), "Problem configuring Talon " + id);
 
         return talon;
     }
@@ -162,7 +110,7 @@ public class TalonFXFactory {
         WPI_TalonFX talon = new WPI_TalonFX(id, canBus);
         talon.set(ControlMode.PercentOutput, 0.0);
 
-        talon.changeMotionControlFramePeriod(config.MOTION_CONTROL_FRAME_PERIOD_MS);
+        talon.changeMotionControlFramePeriod(1000);
         talon.clearMotionProfileHasUnderrun(kTimeoutMs);
         talon.clearMotionProfileTrajectories();
 

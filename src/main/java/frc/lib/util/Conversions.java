@@ -6,6 +6,14 @@ public class Conversions {
 
   /**
    * @param rotations    CANCoder Counts
+   * @return Degrees of Rotation of Mechanism
+   */
+  public static double rotationsToDegrees(double rotations) {
+    return rotations * (360.0);
+  }
+
+  /**
+   * @param rotations    CANCoder Counts
    * @param gearRatio Gear Ratio between CANCoder and Mechanism
    * @return Degrees of Rotation of Mechanism
    */

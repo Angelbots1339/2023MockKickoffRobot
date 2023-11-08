@@ -1,11 +1,12 @@
 package frc.robot.subsystems;
 
-import com.ctre.phoenix.sensors.Pigeon2;
+import com.ctre.phoenix6.configs.Pigeon2Configuration;
+import com.ctre.phoenix6.hardware.Pigeon2;
 import com.pathplanner.lib.PathPlannerTrajectory;
 import com.pathplanner.lib.PathPoint;
 
-import frc.lib.team254.util.TalonUtil;
 import frc.lib.util.ClosedLoopUtil;
+import frc.lib.util.ErrorCheckUtil;
 import frc.lib.util.logging.LoggedSubsystem;
 import frc.lib.util.logging.loggedObjects.LoggedFalcon;
 import frc.lib.util.logging.loggedObjects.LoggedField;
@@ -67,7 +68,7 @@ public class Swerve extends SubsystemBase {
         };
 
         gyro = new Pigeon2(PIGEON_ID);
-        TalonUtil.checkError(gyro.configFactoryDefault(), "Failed to config factory default on pigeon");
+        ErrorCheckUtil.checkError(gyro.getConfigurator().apply(new Pigeon2Configuration()), "Failed to config factory default on pigeon");
         zeroGyro();
 
         gyroBuffer = new GyroLatencyBuffer(gyro, GYRO_BUFFER_SIZE, GYRO_BUFFER_PERIOD);
@@ -371,7 +372,7 @@ public class Swerve extends SubsystemBase {
     }
 
     public Rotation2d getYaw() {
-        return (INVERT_GYRO) ? Rotation2d.fromDegrees(360 - gyro.getYaw()) : Rotation2d.fromDegrees(gyro.getYaw());
+        return (INVERT_GYRO) ? Rotation2d.fromDegrees(360 - gyro.getYaw().getValue()) : Rotation2d.fromDegrees(gyro.getYaw().getValue());
     }
 
     public Rotation2d getYawLatency(double time) {
@@ -385,8 +386,8 @@ public class Swerve extends SubsystemBase {
     }
 
     public Rotation3d getGyro() {
-        return new Rotation3d(Math.toRadians(gyro.getRoll()), Math.toRadians(gyro.getPitch()),
-                Math.toRadians(gyro.getYaw()));
+        return new Rotation3d(Math.toRadians(gyro.getRoll().getValue()), Math.toRadians(gyro.getPitch().getValue()),
+                Math.toRadians(gyro.getYaw().getValue()));
     }
 
     public Rotation3d getGyroAtTime(double timeInSec) {
@@ -397,7 +398,7 @@ public class Swerve extends SubsystemBase {
   
 
     public double getPitch() {
-        return gyro.getPitch();
+        return gyro.getPitch().getValue();
     }
 
 

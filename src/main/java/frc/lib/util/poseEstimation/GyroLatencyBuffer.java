@@ -6,7 +6,7 @@ package frc.lib.util.poseEstimation;
 
 import java.util.Timer;
 
-import com.ctre.phoenix.sensors.Pigeon2;
+import com.ctre.phoenix6.hardware.Pigeon2;
 
 /** Add your docs here. */
 public class GyroLatencyBuffer {
@@ -30,9 +30,9 @@ public class GyroLatencyBuffer {
             @Override
             public void run() {
                 
-                yaw.addMeasurement(gyro.getYaw());
-                pitch.addMeasurement(gyro.getPitch());
-                roll.addMeasurement(gyro.getRoll());
+                yaw.addMeasurement(gyro.getYaw().getValue());
+                pitch.addMeasurement(gyro.getPitch().getValue());
+                roll.addMeasurement(gyro.getRoll().getValue());
             }
         }, 0, period);
     }
