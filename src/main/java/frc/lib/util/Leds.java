@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import java.util.List;
+import java.util.Optional;
 
 public class Leds extends SubsystemBase {
 
@@ -52,7 +53,7 @@ public class Leds extends SubsystemBase {
   public boolean lowBatteryAlert = false;
   public boolean demoMode = false;
 
-  private Alliance alliance = Alliance.Invalid;
+  private Optional<Alliance> alliance = Optional.empty();
   private boolean lastEnabledAuto = false;
   private double lastEnabledTime = 0.0;
   private boolean estopped = false;
@@ -167,7 +168,7 @@ public class Leds extends SubsystemBase {
                 new Color(0.15, 0.3, 1.0)),
             3,
             5.0);
-        switch (alliance) {
+        switch (alliance.get()) {
           case Red:
             solid(Section.STATIC_LOW, Color.kRed);
             buffer.setLED(staticSectionLength, Color.kBlack);
@@ -182,7 +183,7 @@ public class Leds extends SubsystemBase {
 
       } else {
         // Default pattern
-        switch (alliance) {
+        switch (alliance.get()) {
           case Red:
             wave(
                 Section.FULL,

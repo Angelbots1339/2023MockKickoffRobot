@@ -52,6 +52,11 @@ public class Indexer extends SubsystemBase {
     indexerMotor.setControl(torqueControl.withOutput(amps));
 
   }
+  
+
+  public void stop() {
+    indexerMotor.set(0);
+  }
 
   private void configureIndexerMotor() {
     TalonFXConfiguration config = new TalonFXConfiguration();

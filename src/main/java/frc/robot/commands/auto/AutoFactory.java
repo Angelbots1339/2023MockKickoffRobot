@@ -7,9 +7,6 @@ package frc.robot.commands.auto;
 import java.lang.reflect.Field;
 import java.util.List;
 
-import com.pathplanner.lib.PathConstraints;
-import com.pathplanner.lib.PathPlanner;
-import com.pathplanner.lib.PathPlannerTrajectory;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -27,9 +24,9 @@ public class AutoFactory {
                 return null;
         }
 
-        public static Command resetGyroAndPos(Swerve swerve, PathPlannerTrajectory trajectory) {
-                return new InstantCommand(swerve::resetGyroTowardsDriverStation)
-                                .andThen(() -> SwerveFollowTrajectory.resetPos(trajectory, swerve));
-        }
+        // public static Command resetGyroAndPos(Swerve swerve, PathPlannerTrajectory trajectory) {
+        //         return new InstantCommand(swerve::resetGyroTowardsDriverStation)
+        //                         .andThen(() -> SwerveFollowTrajectory.resetPos(trajectory, swerve));
+        // }
 
 }

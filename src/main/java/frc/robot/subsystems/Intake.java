@@ -71,7 +71,7 @@ public class Intake extends SubsystemBase {
     return intakeSolenoid.get(); 
   }
 
-  public void stopIntake() {
+  public void stop() {
     intakeMotor.set(0);
   }
 

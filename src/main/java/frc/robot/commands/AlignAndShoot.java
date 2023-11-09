@@ -4,11 +4,11 @@
 
 package frc.robot.commands;
 
-import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
 
-public class AlignAndShoot extends CommandBase {
+public class AlignAndShoot extends Command {
 
   Shooter shooter;
   Intake intake;

@@ -5,14 +5,14 @@
 package frc.lib.util.auto;
 import java.util.List;
 
-import com.pathplanner.lib.PathPlanner;
-import com.pathplanner.lib.PathPlannerTrajectory;
+
 
 /** Add your docs here. */
 public class AutoUtils {
-    public static List<PathPlannerTrajectory> loadTrajectoriesWithConstraints(String name) {
-        return PathPlanner.loadPathGroup(name, PathPlanner.getConstraintsFromPath(name));
-    }
+    // TODO FIX
+    // public static List<PathPlannerTrajectory> loadTrajectoriesWithConstraints(String name) {
+    //     return PathPlanner.loadPathGroup(name, PathPlanner.getConstraintsFromPath(name));
+    // }
 
 
 }

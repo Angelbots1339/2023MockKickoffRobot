@@ -2,8 +2,6 @@ package frc.robot.subsystems;
 
 import com.ctre.phoenix6.configs.Pigeon2Configuration;
 import com.ctre.phoenix6.hardware.Pigeon2;
-import com.pathplanner.lib.PathPlannerTrajectory;
-import com.pathplanner.lib.PathPoint;
 
 import frc.lib.util.ClosedLoopUtil;
 import frc.lib.util.ErrorCheckUtil;
@@ -19,7 +17,7 @@ import frc.lib.util.swerve.SwerveMath;
 import frc.robot.LoggingConstants;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.SwerveConstants;
-import frc.robot.commands.auto.SwerveFollowTrajectory;
+// import frc.robot.commands.auto.SwerveFollowTrajectory;
 import frc.robot.vision.PoseEstimator;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
@@ -81,14 +79,15 @@ public class Swerve extends SubsystemBase {
         autoField = new LoggedField("AutoField", logger, "Auto", true);
         poseEstimation = new PoseEstimator(field, getYaw(), getPositions());
 
-        SwerveFollowTrajectory.setLoggingCallbacks((PathPlannerTrajectory traj) -> {
-            autoField.setTrajectory("AutoPath", traj, true);
-        }, (Pose2d pose2d) -> {
-            autoField.addPose2d("DesiredPose", () -> pose2d, true);
-        }, null, (Translation2d translation2d, Rotation2d rotation2d) -> {
-            autoErrorTranslation = translation2d;
-            autoErrorRotation = rotation2d;
-        });
+        // TODO Fix
+        // SwerveFollowTrajectory.setLoggingCallbacks((PathPlannerTrajectory traj) -> {
+        //     autoField.setTrajectory("AutoPath", traj, true);
+        // }, (Pose2d pose2d) -> {
+        //     autoField.addPose2d("DesiredPose", () -> pose2d, true);
+        // }, null, (Translation2d translation2d, Rotation2d rotation2d) -> {
+        //     autoErrorTranslation = translation2d;
+        //     autoErrorRotation = rotation2d;
+        // });
 
         initializeLog();
     }
@@ -114,7 +113,7 @@ public class Swerve extends SubsystemBase {
      */
     public void drive(Translation2d translation, double rotation, boolean fieldRelative, boolean isOpenLoop) {
 
-        Rotation2d adjustedYaw = DriverStation.getAlliance() == Alliance.Blue ? getYaw()
+        Rotation2d adjustedYaw = DriverStation.getAlliance().get() == Alliance.Blue ? getYaw()
                 : getYaw().plus(new Rotation2d(Math.PI));
         ChassisSpeeds chassisSpeeds;
         if (fieldRelative) {
@@ -381,7 +380,7 @@ public class Swerve extends SubsystemBase {
     }
 
     public Rotation2d getAdjustedYaw() {
-        return DriverStation.getAlliance() == Alliance.Blue ? getYaw()
+        return DriverStation.getAlliance().get() == Alliance.Blue ? getYaw()
                 : getYaw().plus(new Rotation2d(Math.PI));
     }
 
@@ -472,9 +471,10 @@ public class Swerve extends SubsystemBase {
         return Math.abs(pidToPoseYController.getPositionError()) <= TRANSLATION_PID_TOLERANCE;
     }
 
-    public void TestTrajectoryGeneration(PathPoint endpoint) {
-        field.setTrajectory("AlignTraj", SwerveFollowTrajectory.SwerveGenerateTrajectoryToPoint(endpoint, this), true);
-    }
+    // TODO Fix
+    // public void TestTrajectoryGeneration(PathPoint endpoint) {
+    //     field.setTrajectory("AlignTraj", SwerveFollowTrajectory.SwerveGenerateTrajectoryToPoint(endpoint, this), true);
+    // }
    
 
 

@@ -15,8 +15,6 @@ import frc.lib.util.Conversions;
 
 import static frc.robot.Constants.ShooterConstants.*;
 
-import org.apache.commons.lang3.Conversion;
-
 public class Shooter extends SubsystemBase {
 
   private TalonFX shooterMotor;

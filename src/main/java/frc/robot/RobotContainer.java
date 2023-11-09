@@ -17,6 +17,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -61,8 +62,12 @@ public class RobotContainer {
   private final Trigger zeroGyro = new JoystickButton(driver,
       XboxController.Button.kStart.value);
 
+  private final Trigger runIntake = new JoystickButton(driver,
+      XboxController.Button.kLeftBumper.value);
 
-      
+  private final Trigger alignAndShoot = new JoystickButton(operator,
+      XboxController.Button.kA.value);
+
   /****** Operator Controls ******/
   private final Trigger toggleIntakeDeploy = new JoystickButton(operator,
       XboxController.Button.kA.value);
@@ -106,10 +111,17 @@ public class RobotContainer {
 
   private void configureDriverBindings() {
     zeroGyro.onTrue(new InstantCommand(swerve::resetGyroTowardsDriverStation));
+
+    runIntake.whileTrue(
+        new StartEndCommand(() -> intake.runIntakeTorqueControl(Constants.IntakeConstants.INTAKE_TORQUE_SPEED),
+            () -> intake.stop(), intake));
+
+    
   }
 
   private void configureOperatorBindings() {
-    toggleIntakeDeploy.onTrue(new InstantCommand(intake.isIntakeDeployed() ? intake::retractIntake : intake::deployIntake));
+    toggleIntakeDeploy
+        .onTrue(new InstantCommand(intake.isIntakeDeployed() ? intake::retractIntake : intake::deployIntake));
   }
 
   /**

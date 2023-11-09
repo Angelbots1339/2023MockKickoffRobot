@@ -19,7 +19,7 @@ public class FieldUtil {
     public static final double redGridAlignX = 0;
 
     public static final double getGridAlignX(){
-        if(DriverStation.getAlliance() == Alliance.Red){
+        if(DriverStation.getAlliance().get() == Alliance.Red){
             return redGridAlignX - SwerveConstants.ALIGN_OFFSET;
         }else {
             return 1.412682;
@@ -28,11 +28,11 @@ public class FieldUtil {
 
 
     public static final double coneNodeBlueMidX = 0.80143; 
-    public static final double coneNodeBlueHighX = 0.36943 ; 
+    public static final double coneNodeBlueHighX = 0.36943;
 
 
     public static final double getConeNodeMidX(){
-        if(DriverStation.getAlliance() == Alliance.Red){
+        if(DriverStation.getAlliance().get() == Alliance.Red){
             return FieldConstants.RED_ORIGIN.getX() - coneNodeBlueMidX;
         }else {
             return coneNodeBlueMidX;
@@ -40,7 +40,7 @@ public class FieldUtil {
     }
 
     public static final double getConeNodeHighX(){
-        if(DriverStation.getAlliance() == Alliance.Red){
+        if(DriverStation.getAlliance().get() == Alliance.Red){
             return FieldConstants.RED_ORIGIN.getX() - coneNodeBlueHighX;
         }else {
             return coneNodeBlueHighX;
@@ -48,14 +48,14 @@ public class FieldUtil {
     }
 
     public static final Rotation2d getTowardsDriverStation(){
-        if(DriverStation.getAlliance() == Alliance.Red){
+        if(DriverStation.getAlliance().get() == Alliance.Red){
             return Rotation2d.fromDegrees(0);
         }else {
             return Rotation2d.fromDegrees(180);
         }
     }
     public static final Rotation2d getAwayFromDriverStation(){
-        if(DriverStation.getAlliance() == Alliance.Red){
+        if(DriverStation.getAlliance().get() == Alliance.Red){
             return Rotation2d.fromDegrees(180);
         }else {
             return Rotation2d.fromDegrees(0);
@@ -64,7 +64,7 @@ public class FieldUtil {
 
     public static Pose2d getFirstAlignSingleSubstation(){
         Pose2d firstAlignBlue = new Pose2d(0,0,getAwayFromDriverStation());
-        if(DriverStation.getAlliance() == Alliance.Red){
+        if(DriverStation.getAlliance().get() == Alliance.Red){
             return flipPose2d(firstAlignBlue);
         }else {
             return firstAlignBlue;
@@ -72,7 +72,7 @@ public class FieldUtil {
     }
     public static Pose2d getSecondAlignSingleSubstation(){
         Pose2d secondAlignBlue = new Pose2d(0,0, Rotation2d.fromDegrees(90));
-        if(DriverStation.getAlliance() == Alliance.Red){
+        if(DriverStation.getAlliance().get() == Alliance.Red){
             return flipPose2d(secondAlignBlue);
         }else {
             return secondAlignBlue;
@@ -80,7 +80,7 @@ public class FieldUtil {
     }
 
     public static Pose2d flipPose2d(Pose2d pose2d){
-        if(DriverStation.getAlliance() == Alliance.Red){
+        if(DriverStation.getAlliance().get() == Alliance.Red){
             return new Pose2d(16.51 - pose2d.getX(), pose2d.getY(), pose2d.getRotation());
         }else {
             return pose2d;
@@ -88,6 +88,6 @@ public class FieldUtil {
     }
 
     public static boolean isBlueAlliance(){
-        return DriverStation.getAlliance() != Alliance.Red;
+        return DriverStation.getAlliance().get() != Alliance.Red;
     }
 }

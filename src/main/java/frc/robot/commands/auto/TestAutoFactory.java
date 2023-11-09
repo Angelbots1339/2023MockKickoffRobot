@@ -6,7 +6,6 @@ package frc.robot.commands.auto;
 
 import java.util.List;
 
-import com.pathplanner.lib.PathPlannerTrajectory;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.lib.util.auto.AutoUtils;
@@ -16,22 +15,23 @@ import frc.robot.subsystems.Swerve;
 // information, see:
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
 public class TestAutoFactory {
+  // TODO FIX
   /** Creates a new examplePathPlannerAuto. */
-  public static Command vision2mTest(Swerve swerve) {
-    List<PathPlannerTrajectory> trajectories = AutoUtils.loadTrajectoriesWithConstraints("2mTest");
-    return new SwerveFollowTrajectory(trajectories.get(0), swerve, true);
-  }
+  // public static Command vision2mTest(Swerve swerve) {
+  //   List<PathPlannerTrajectory> trajectories = AutoUtils.loadTrajectoriesWithConstraints("2mTest");
+  //   return new SwerveFollowTrajectory(trajectories.get(0), swerve, true);
+  // }
 
-  public static Command nonVision2mTest(Swerve swerve) {
-    List<PathPlannerTrajectory> trajectories = AutoUtils.loadTrajectoriesWithConstraints("2mTest");
-    return new SwerveFollowTrajectory(trajectories.get(0), swerve, false);
-  }
-  public static Command nonVisionTurnTest(Swerve swerve) {
-    List<PathPlannerTrajectory> trajectories = AutoUtils.loadTrajectoriesWithConstraints("TurnTest");
-    return new SwerveFollowTrajectory(trajectories.get(0), swerve, false);
-  }
-  public static Command visionTurnTest(Swerve swerve) {
-    List<PathPlannerTrajectory> trajectories = AutoUtils.loadTrajectoriesWithConstraints("TurnTest");
-    return new SwerveFollowTrajectory(trajectories.get(0), swerve, false);
-  }
+  // public static Command nonVision2mTest(Swerve swerve) {
+  //   List<PathPlannerTrajectory> trajectories = AutoUtils.loadTrajectoriesWithConstraints("2mTest");
+  //   return new SwerveFollowTrajectory(trajectories.get(0), swerve, false);
+  // }
+  // public static Command nonVisionTurnTest(Swerve swerve) {
+  //   List<PathPlannerTrajectory> trajectories = AutoUtils.loadTrajectoriesWithConstraints("TurnTest");
+  //   return new SwerveFollowTrajectory(trajectories.get(0), swerve, false);
+  // }
+  // public static Command visionTurnTest(Swerve swerve) {
+  //   List<PathPlannerTrajectory> trajectories = AutoUtils.loadTrajectoriesWithConstraints("TurnTest");
+  //   return new SwerveFollowTrajectory(trajectories.get(0), swerve, false);
+  // }
 }
