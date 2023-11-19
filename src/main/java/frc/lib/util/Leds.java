@@ -219,31 +219,6 @@ public class Leds extends SubsystemBase {
         wave(Section.FULL, Color.kGold, Color.kDarkBlue, waveSlowCycleLength, waveSlowDuration);
       }
 
-      // Set HP indicator
-      Color hpColor = null;
-      switch (hpGamePiece) {
-        case NONE:
-          hpColor = null;
-          break;
-        case CUBE:
-          hpColor = Color.kPurple;
-          break;
-        case CONE:
-          if (hpConeTipped) {
-            hpColor = Color.kRed;
-          } else {
-            hpColor = Color.kGold;
-          }
-          break;
-      }
-      if (hpDoubleSubstation) {
-        solid(Section.STATIC_LOW, hpColor);
-        solid(Section.STATIC_HIGH, hpColor);
-      } else if (hpThrowGamePiece) {
-        strobe(Section.STATIC, hpColor, strobeSlowDuration);
-      } else {
-        solid(Section.STATIC, hpColor);
-      }
 
       // Set special modes
       if (distraction) {
@@ -259,16 +234,6 @@ public class Leds extends SubsystemBase {
       } else if (autoSubstation) {
         rainbow(Section.SHOULDER, rainbowCycleLength, rainbowDuration);
       }
-    }
-
-    // Arm coast alert
-    if (armCoast) {
-      solid(Section.STATIC, Color.kWhite);
-    }
-
-    // Arm estop alert
-    if (armEstopped) {
-      strobe(Section.SHOULDER, Color.kRed, strobeFastDuration);
     }
 
     // Same battery alert

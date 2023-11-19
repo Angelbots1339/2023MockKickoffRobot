@@ -11,6 +11,7 @@ import frc.lib.util.ErrorCheckUtil;
 import frc.lib.util.swerve.SwerveEncoder;
 import frc.lib.util.swerve.SwerveMath;
 import frc.lib.util.swerve.SwerveModuleConstants;
+import frc.lib.util.swerve.SwerveEncoder.EncoderType;
 import frc.robot.Constants;
 
 import static frc.robot.Constants.SwerveConstants.FalconConfigConstants.*;
@@ -43,17 +44,17 @@ public class SwerveModule {
                 this.angleOffset = moduleConstants.angleOffset;
 
                 /* Angle Encoder Config */
-                angleEncoder = new SwerveEncoder(moduleConstants.cancoderID, Constants.CANIVORE, null);
+                angleEncoder = new SwerveEncoder(moduleConstants.cancoderID, Constants.RIO, EncoderType.CANCODER);
                 configAngleEncoder();
 
                 /* Angle Motor Config */
-                angleMotor = TalonFXFactory.createDefaultTalon(moduleConstants.angleMotorID, Constants.CANIVORE);
+                angleMotor = TalonFXFactory.createDefaultTalon(moduleConstants.angleMotorID, Constants.RIO);
                 // angleMotor = new WPI_TalonFX(moduleConstants.angleMotorID,
                 // Constants.CANIVORE);
                 configAngleMotor();
 
                 /* Drive Motor Config */
-                driveMotor = TalonFXFactory.createDefaultTalon(moduleConstants.driveMotorID, Constants.CANIVORE);
+                driveMotor = TalonFXFactory.createDefaultTalon(moduleConstants.driveMotorID, Constants.RIO);
                 // driveMotor = new WPI_TalonFX(moduleConstants.driveMotorID,
                 // Constants.CANIVORE);
                 configDriveMotor();
@@ -78,17 +79,16 @@ public class SwerveModule {
         }
 
         /**
-        *
-        * @param desiredState
-        * @param isOpenLoop
-        */
-        public void setDesiredStateStrict(SwerveModuleState desiredState, boolean
-        isOpenLoop) {
+         *
+         * @param desiredState
+         * @param isOpenLoop
+         */
+        public void setDesiredStateStrict(SwerveModuleState desiredState, boolean isOpenLoop) {
 
-        desiredState = SwerveMath.optimize(desiredState, getState().angle);
-        setAngleStrict(desiredState);
-        setSpeed(desiredState, isOpenLoop);
-        this.desiredState = desiredState;
+                desiredState = SwerveMath.optimize(desiredState, getState().angle);
+                setAngleStrict(desiredState);
+                setSpeed(desiredState, isOpenLoop);
+                this.desiredState = desiredState;
         }
 
         /**
@@ -125,7 +125,7 @@ public class SwerveModule {
                                 .abs(desiredState.speedMetersPerSecond) <= (Constants.SwerveConstants.MAX_SPEED * 0.01))
                                                 ? lastAngle
                                                 : desiredState.angle; // Prevent rotating module if speed is less then
-                                                                      // 1%. Prevents Jittering.
+                // 1%. Prevents Jittering.
 
                 // angleMotor.setControl(new PositionVoltage(ANGLE_KF,
                 // DRIVE_SENSOR_VELOCITY_MEAS_WINDOW, CANCODER_INVERT, ANGLE_KD,
@@ -133,28 +133,31 @@ public class SwerveModule {
                 // Conversions.degreesToFalcon(angle.getDegrees(),
                 // Constants.SwerveConstants.ANGLE_GEAR_RATIO));
 
-                PositionVoltage positionVoltage = new PositionVoltage(Conversions.degreesToRotations(angle.getDegrees(),
+                PositionVoltage positionVoltage = new PositionVoltage(Conversions.gearRatioConvert(angle.getRotations(),
                                 Constants.SwerveConstants.ANGLE_GEAR_RATIO)).withSlot(0);
 
                 angleMotor.setControl(positionVoltage);
 
                 lastAngle = angle;
         }
+
         private void setAngleStrict(SwerveModuleState desiredState) {
 
-                PositionVoltage positionVoltage = new PositionVoltage(Conversions.degreesToRotations(desiredState.angle.getDegrees(),
-                Constants.SwerveConstants.ANGLE_GEAR_RATIO)).withSlot(0);
-                
+                PositionVoltage positionVoltage = new PositionVoltage(
+                                Conversions.gearRatioConvert(desiredState.angle.getRotations(),
+                                                Constants.SwerveConstants.ANGLE_GEAR_RATIO))
+                                .withSlot(0);
+
                 angleMotor.setControl(positionVoltage);
 
-        // angleMotor.set(ControlMode.Position,
-        // Conversions.degreesToFalcon(desiredState.angle.getDegrees(),
-        // Constants.SwerveConstants.ANGLE_GEAR_RATIO));
-        lastAngle = desiredState.angle;
+                // angleMotor.set(ControlMode.Position,
+                // Conversions.degreesToFalcon(desiredState.angle.getDegrees(),
+                // Constants.SwerveConstants.ANGLE_GEAR_RATIO));
+                lastAngle = desiredState.angle;
         }
 
         private Rotation2d getAngle() {
-                return Rotation2d.fromDegrees(Conversions.rotationsToDegrees(angleMotor.getPosition().getValue(),
+                return Rotation2d.fromRotations(Conversions.gearRatioConvert(angleMotor.getPosition().getValue(),
                                 Constants.SwerveConstants.ANGLE_GEAR_RATIO));
         }
 
@@ -200,7 +203,6 @@ public class SwerveModule {
                 angleMotorConfig.Slot0.kP = ANGLE_KP;
                 angleMotorConfig.Slot0.kI = ANGLE_KI;
                 angleMotorConfig.Slot0.kD = ANGLE_KD;
-
 
                 angleMotorConfig.CurrentLimits.SupplyCurrentLimit = ANGLE_CONTINUOUS_CURRENT_LIMIT;
                 angleMotorConfig.CurrentLimits.SupplyCurrentLimitEnable = ANGLE_ENABLE_CURRENT_LIMIT;
@@ -259,7 +261,8 @@ public class SwerveModule {
         }
 
         public double getRotations() {
-                return Conversions.gearRatioConvert(driveMotor.getPosition().getValue(), Constants.SwerveConstants.DRIVE_GEAR_RATIO);
+                return Conversions.gearRatioConvert(driveMotor.getPosition().getValue(),
+                                Constants.SwerveConstants.DRIVE_GEAR_RATIO);
         }
 
 }

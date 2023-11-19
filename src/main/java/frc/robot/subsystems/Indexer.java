@@ -23,7 +23,7 @@ public class Indexer extends SubsystemBase {
 
   /** Creates a new Indexer. */
   public Indexer() {
-    indexerMotor = TalonFXFactory.createDefaultTalon(INDEXER_MOTOR_ID, Constants.CANIVORE);
+    indexerMotor = TalonFXFactory.createDefaultTalon(INDEXER_MOTOR_ID, Constants.RIO);
 
     dutyCycleControl = new DutyCycleOut(0, true, false);
     torqueControl = new TorqueCurrentFOC(0, INDEXER_MAX_TORQUE_OUTPUT, INDEXER_TORQUE_DEADBAND, INDEXER_COAST_WHEN_STOPPED);

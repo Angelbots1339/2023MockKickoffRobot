@@ -15,8 +15,13 @@ import frc.lib.util.poseEstimation.GyroLatencyBuffer;
 import frc.lib.util.poseEstimation.LatencyDoubleBuffer;
 import frc.lib.util.swerve.SwerveMath;
 import frc.robot.LoggingConstants;
+import frc.robot.Constants;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.SwerveConstants;
+import frc.robot.Constants.SwerveConstants.Mod0;
+import frc.robot.Constants.SwerveConstants.Mod1;
+import frc.robot.Constants.SwerveConstants.Mod2;
+import frc.robot.Constants.SwerveConstants.Mod3;
 // import frc.robot.commands.auto.SwerveFollowTrajectory;
 import frc.robot.vision.PoseEstimator;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -53,6 +58,8 @@ public class Swerve extends SubsystemBase {
     private Translation2d autoErrorTranslation = new Translation2d();
     private Rotation2d autoErrorRotation = new Rotation2d();
     public GyroLatencyBuffer gyroBuffer;
+
+    private ChassisSpeeds currentChassisSpeeds = new ChassisSpeeds(0, 0, 0);
 
     public Swerve() {
         configPIDtoPoseControllers();
@@ -112,7 +119,7 @@ public class Swerve extends SubsystemBase {
      * @param isOpenLoop
      */
     public void drive(Translation2d translation, double rotation, boolean fieldRelative, boolean isOpenLoop) {
-
+        
         Rotation2d adjustedYaw = DriverStation.getAlliance().get() == Alliance.Blue ? getYaw()
                 : getYaw().plus(new Rotation2d(Math.PI));
         ChassisSpeeds chassisSpeeds;
@@ -134,6 +141,8 @@ public class Swerve extends SubsystemBase {
         logger.updateDouble("rot", chassisSpeeds.omegaRadiansPerSecond, "Drive");
 
         SwerveModuleState[] swerveModuleStates = KINEMATICS.toSwerveModuleStates(chassisSpeeds);
+
+        currentChassisSpeeds = chassisSpeeds;
 
         setModuleStates(swerveModuleStates, isOpenLoop);
     }
@@ -194,6 +203,7 @@ public class Swerve extends SubsystemBase {
         setModuleStates(KINEMATICS.toSwerveModuleStates(
                 new ChassisSpeeds(0, 0, 0)),
                 true);
+                currentChassisSpeeds = new ChassisSpeeds(0, 0, 0);
 
     }
 
@@ -223,7 +233,9 @@ public class Swerve extends SubsystemBase {
 
     /********* SETTERS *********/
 
-    /* Used by SwerveControllerCommand in Auto */
+    /**
+     *  Used by PathPlanner's AutoBuilder
+     */
     public void setChassisSpeeds(ChassisSpeeds chassisSpeeds) {
         // ChassisSpeeds adjustedChassisSpeeds =
         // reduceSkewFromLogTwist2d(chassisSpeeds);
@@ -279,6 +291,14 @@ public class Swerve extends SubsystemBase {
     }
 
     /*-----Getters----- */
+
+/**
+ * Used by PathPlanner's AutoBuilder
+ * @return current chassis speeds
+ */
+    public ChassisSpeeds getRobotRelativeSpeeds(){
+    return KINEMATICS.toChassisSpeeds(getStates());
+}
 
     public AprilTagFieldLayout getField() {
         return poseEstimation.getField();

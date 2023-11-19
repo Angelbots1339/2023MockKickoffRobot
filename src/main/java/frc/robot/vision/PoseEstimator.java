@@ -38,7 +38,7 @@ import frc.lib.util.poseEstimation.LimelightHelpers;
 
 import static frc.robot.Constants.VisionConstants.*;
 import frc.robot.Constants.SwerveConstants;
-import frc.robot.regressions.KalmanVisionRegression;
+import frc.robot.regressions.ShooterHoodRegression;
 import frc.robot.subsystems.Swerve;;
 
 /** Add your docs here. */
@@ -65,7 +65,7 @@ public class PoseEstimator {
 
 
 
-        logger.addPose2d("Robot", () -> poseEstimator.getEstimatedPosition(), true);
+        logger.addPose2d("PoseEstimation", () -> poseEstimator.getEstimatedPosition(), true);
         logger.addPose2d("NonVisionPoseEstimation", () -> poseEstimatorNonVision.getEstimatedPosition(), false);
     }
 
@@ -86,14 +86,14 @@ public class PoseEstimator {
             //     return;
 
             
-            double tagDistance = LimelightHelpers.getTargetPose3d_CameraSpace(LIMELIGHT_NAME).getTranslation().getNorm(); // Find direct distance to target for std dev calculation
-            double xyStdDev2 = MathUtil.clamp(0.002 * Math.pow(2.2, tagDistance), 0, 1);
+            // double tagDistance = LimelightHelpers.getTargetPose3d_CameraSpace(LIMELIGHT_NAME).getTranslation().getNorm(); // Find direct distance to target for std dev calculation
+            // double xyStdDev2 = MathUtil.clamp(0.002 * Math.pow(2.2, tagDistance), 0, 1);
 
 
-            Pose2d poseFromVision =  LimelightHelpers.getBotPose2d(LIMELIGHT_NAME);
-            double poseFromVisionTimestamp = Timer.getFPGATimestamp() - LimelightHelpers.getLatency_Capture(LIMELIGHT_NAME) - LimelightHelpers.getLatency_Pipeline("limelight1");
+            // Pose2d poseFromVision =  LimelightHelpers.getBotPose2d(LIMELIGHT_NAME);
+            // double poseFromVisionTimestamp = Timer.getFPGATimestamp() - LimelightHelpers.getLatency_Capture(LIMELIGHT_NAME) - LimelightHelpers.getLatency_Pipeline("limelight1");
 
-            poseEstimator.addVisionMeasurement(poseFromVision, poseFromVisionTimestamp, VecBuilder.fill(xyStdDev2, xyStdDev2, 0));
+            // poseEstimator.addVisionMeasurement(poseFromVision, poseFromVisionTimestamp, VecBuilder.fill(xyStdDev2, xyStdDev2, 0));
 
         }
     
@@ -105,6 +105,9 @@ public class PoseEstimator {
     public Pose2d getPoseNonVision() {
         return poseEstimatorNonVision.getEstimatedPosition();
     }
+
+    
+
 
     // public Optional<Pair<EstimatedRobotPose, Translation2d>> getPoseOnlyVision(Pose2d referencePose) {
     //     PhotonPipelineResult result = APRILTAG_CAM.getLatestResult();

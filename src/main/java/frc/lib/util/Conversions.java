@@ -31,6 +31,15 @@ public class Conversions {
     return ticks;
   }
 
+    /**
+   * @param degrees   Degrees of rotation of Mechanism
+   * @return Rotation Counts
+   */
+  public static double degreesToRotations(double degrees) {
+    double ticks = degrees / 360.0;
+    return ticks;
+  }
+
 
   /**
    * @param velocitycounts Falcon Velocity Counts

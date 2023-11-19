@@ -10,6 +10,7 @@ import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib.util.Conversions;
 
@@ -18,20 +19,15 @@ import static frc.robot.Constants.ShooterConstants.*;
 public class Shooter extends SubsystemBase {
 
   private TalonFX shooterMotor;
-  private TalonFX hoodMotor;
   private VelocityVoltage shooterVelocityControl;
-  private PositionVoltage hoodPositionControl;
 
   /** Creates a new Shooter. */
   public Shooter() {
     shooterMotor = new TalonFX(SHOOTER_MOTOR_ID);
-    hoodMotor = new TalonFX(HOOD_MOTOR_ID);
 
     shooterVelocityControl = new VelocityVoltage(0, 0, SHOOTER_MOTOR_ENABLE_FOC, 0, SHOOTER_MOTOR_CONTROL_SLOT, false);
-    hoodPositionControl = new PositionVoltage(0, 0, HOOD_MOTOR_ENABLE_FOC, 0, HOOD_MOTOR_CONTROL_SLOT, false);
 
     configureShooterMotor();
-    configureHoodMotor();
   }
 
   /********* Setters *********/
@@ -46,8 +42,9 @@ public class Shooter extends SubsystemBase {
     shooterMotor.setControl(shooterVelocityControl.withVelocity(rps));
   }
 
-  public void setHoodPosition(double position) {
-    hoodMotor.setControl(hoodPositionControl);
+
+  public void stop() {
+    shooterMotor.set(0);
   }
 
   /********* Getters *********/
@@ -69,25 +66,6 @@ public class Shooter extends SubsystemBase {
   }
 
 
-  /**
-   * 
-   * @return Hood position in rotations
-   */
-  public double getHoodPosition() {
-    return hoodMotor.getPosition().getValue();
-  }
-
-    /**
-   * 
-   * @return Hood position in rotations
-   */
-  public double getHoodPositionDegrees() {
-    return Conversions.rotationsToDegrees(hoodMotor.getPosition().getValue(), 1);
-  }
-
-
-
-
   private void configureShooterMotor() {
     TalonFXConfiguration config = new TalonFXConfiguration();
     shooterMotor.getConfigurator().refresh(config);
@@ -105,27 +83,6 @@ public class Shooter extends SubsystemBase {
 
 
     shooterMotor.getConfigurator().apply(config);
-  }
-
-  private void configureHoodMotor() {
-    TalonFXConfiguration config = new TalonFXConfiguration();
-    hoodMotor.getConfigurator().refresh(config);
-
-    config.Slot0.kP = HOOD_MOTOR_KP;
-    config.Slot0.kI = HOOD_MOTOR_KI;
-    config.Slot0.kD = HOOD_MOTOR_KD;
-
-    config.Slot0.GravityType = HOOD_MOTOR_GRAVITY_TYPE;
-    config.Slot0.kG = HOOD_MOTOR_KG;
-
-    config.MotorOutput.Inverted = HOOD_MOTOR_INVERT;
-    config.MotorOutput.NeutralMode = HOOD_MOTOR_NEUTRAL_MODE;
-
-    config.Feedback.RotorToSensorRatio = HOOD_MOTOR_GEAR_RATIO;
-    config.ClosedLoopGeneral.ContinuousWrap = false;
-
-
-    hoodMotor.getConfigurator().apply(config);
   }
 
   @Override

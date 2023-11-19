@@ -26,7 +26,7 @@ public class Intake extends SubsystemBase {
   /** Creates a new Intake. */
   public Intake() {
     intakeSolenoid = new Solenoid(Constants.PNEUMATIC_TYPE, INTAKE_SOLENOID_ID);
-    intakeMotor = TalonFXFactory.createDefaultTalon(INTAKE_MOTOR_ID, Constants.CANIVORE);
+    intakeMotor = TalonFXFactory.createDefaultTalon(INTAKE_MOTOR_ID, Constants.RIO);
 
     dutyCycleControl = new DutyCycleOut(0, true, false);
     torqueControl = new TorqueCurrentFOC(0, INTAKE_MAX_TORQUE_OUTPUT, INTAKE_TORQUE_DEADBAND, INTAKE_COAST_WHEN_STOPPED);

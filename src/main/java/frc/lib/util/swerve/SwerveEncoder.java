@@ -14,7 +14,7 @@ import static frc.robot.Constants.SwerveConstants.FalconConfigConstants.*;
 public class SwerveEncoder {
 
     private CANcoder canCoder;
-    private Canandcoder canandcoder;
+    // private Canandcoder canandcoder;
     private EncoderType encoderType;
 
     /**
@@ -35,7 +35,7 @@ public class SwerveEncoder {
                 break;
 
             case CANANDCODER:
-                canandcoder = new Canandcoder(canID);
+                // canandcoder = new Canandcoder(canID);
                 break;
 
             default:
@@ -61,7 +61,7 @@ public class SwerveEncoder {
                 break;
 
             case CANANDCODER:
-                canandcoder = new Canandcoder(canID);
+                // canandcoder = new Canandcoder(canID);
                 break;
         }
 
@@ -73,7 +73,7 @@ public class SwerveEncoder {
                 return canCoder.getAbsolutePosition().getValue();
 
             case CANANDCODER:
-                return canandcoder.getAbsPosition();
+                // return canandcoder.getAbsPosition();
         }
 
         return 0;
@@ -89,7 +89,7 @@ public class SwerveEncoder {
                 canCoder.setPosition(position);
 
             case CANANDCODER:
-                canandcoder.setAbsPosition(position);
+                // canandcoder.setAbsPosition(position);
         }
     }
 
@@ -118,14 +118,14 @@ public class SwerveEncoder {
 
         CanandcoderSettings canandcoderSettings = new CanandcoderSettings();
 
-        ErrorCheckUtil.checkBoolean(canandcoder.magnetInRange(),
-                "Problem with Canandcoder magnet on module " + moduleNumber);
+        // ErrorCheckUtil.checkBoolean(canandcoder.magnetInRange(),
+        //         "Problem with Canandcoder magnet on module " + moduleNumber);
         // canandcoderSettings.setVelocityFilterWidth(0);
 
         canandcoderSettings.setInvertDirection(CANCODER_INVERT != SensorDirectionValue.CounterClockwise_Positive);
 
-        ErrorCheckUtil.checkBoolean(canandcoder.setSettings(canandcoderSettings),
-                "Failed to configure Canandcoder on module " + moduleNumber);
+        // ErrorCheckUtil.checkBoolean(canandcoder.setSettings(canandcoderSettings),
+        //         "Failed to configure Canandcoder on module " + moduleNumber);
     }
 
     public enum EncoderType {
