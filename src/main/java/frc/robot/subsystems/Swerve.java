@@ -4,6 +4,7 @@ import com.ctre.phoenix6.configs.Pigeon2Configuration;
 import com.ctre.phoenix6.hardware.Pigeon2;
 
 import frc.lib.util.ClosedLoopUtil;
+import frc.lib.util.Conversions;
 import frc.lib.util.ErrorCheckUtil;
 import frc.lib.util.logging.LoggedSubsystem;
 import frc.lib.util.logging.loggedObjects.LoggedFalcon;
@@ -72,7 +73,7 @@ public class Swerve extends SubsystemBase {
                 new SwerveModule(3, Mod3.constants)
         };
 
-        gyro = new Pigeon2(PIGEON_ID);
+        gyro = new Pigeon2(PIGEON_ID, Constants.RIO);
         ErrorCheckUtil.checkError(gyro.getConfigurator().apply(new Pigeon2Configuration()), "Failed to config factory default on pigeon");
         zeroGyro();
 
@@ -257,7 +258,7 @@ public class Swerve extends SubsystemBase {
     }
 
     public void resetGyroTowardsDriverStation() {
-        gyro.setYaw(FieldUtil.getTowardsDriverStation().getDegrees());
+        gyro.setYaw(Conversions.degreesToRotations(FieldUtil.getTowardsDriverStation().getDegrees()));
     }
 
     public void resetOdometry(Pose2d pose) {
@@ -515,6 +516,7 @@ public class Swerve extends SubsystemBase {
 
         // SmartDashboard.putNumber("delayed yaw", gyroBuffer.getYaw(30 * 20));
         // SmartDashboard.putNumber("yaw", getYaw().getDegrees());
+
 
         calculateVelocity();
     }

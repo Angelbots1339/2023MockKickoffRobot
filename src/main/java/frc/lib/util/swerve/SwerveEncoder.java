@@ -7,6 +7,7 @@ import com.ctre.phoenix6.signals.SensorDirectionValue;
 import com.reduxrobotics.sensors.canandcoder.Canandcoder;
 import com.reduxrobotics.sensors.canandcoder.CanandcoderSettings;
 
+import frc.lib.util.Conversions;
 import frc.lib.util.ErrorCheckUtil;
 
 import static frc.robot.Constants.SwerveConstants.FalconConfigConstants.*;
@@ -67,6 +68,10 @@ public class SwerveEncoder {
 
     }
 
+    /**
+     * 
+     * @return Abs position in rotations
+     */
     public double getAbsolutePosition() {
         switch (encoderType) {
             case CANCODER:
@@ -81,15 +86,15 @@ public class SwerveEncoder {
 
     /**
      * 
-     * @param position
+     * @param degrees in degrees
      */
-    public void setPosition(double position) {
+    public void setPosition(double degrees) {
         switch (encoderType) {
             case CANCODER:
-                canCoder.setPosition(position);
+                canCoder.setPosition(Conversions.degreesToRotations(degrees));
 
             case CANANDCODER:
-                // canandcoder.setAbsPosition(position);
+                // canandcoder.setAbsPosition(degrees);
         }
     }
 

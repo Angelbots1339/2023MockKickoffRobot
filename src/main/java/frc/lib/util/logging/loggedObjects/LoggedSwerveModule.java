@@ -25,8 +25,8 @@ public class LoggedSwerveModule extends LoggedObject<SwerveModule[]> {
     }
 
     public LoggedSwerveModule(String name, LoggedContainer subsystemLogger, SwerveModule[] object, String logType,
-            Boolean SeptateTab) {
-        super(name, subsystemLogger, object, logType, SeptateTab);
+            Boolean SeparateTab) {
+        super(name, subsystemLogger, object, logType, SeparateTab);
     }
 
     public LoggedSwerveModule(String name, LoggedContainer subsystemLogger, SwerveModule[] object, String logType) {
@@ -65,7 +65,32 @@ public class LoggedSwerveModule extends LoggedObject<SwerveModule[]> {
         addDoubleToShuffleboard("TotalDistance", () -> object[3].getPosition().distanceMeters, layout3);
         addDoubleToShuffleboard("TotalRotations", () -> object[3].getRotations(), layout3);
 
+
+        //FL, FR, BL, BR
+        ShuffleboardLayout trueStatesLayout = getTab().getLayout("TrueModuleStates", BuiltInLayouts.kList).withSize(2, 3);
+        addDoubleArrayToShuffleboard(name, () -> 
+            new double[]{
+                object[1].getState().angle.getDegrees(),  object[1].getState().speedMetersPerSecond,
+                object[3].getState().angle.getDegrees(), object[3].getState().speedMetersPerSecond,
+                object[0].getState().angle.getDegrees(), object[0].getState().speedMetersPerSecond,
+                object[2].getState().angle.getDegrees(), object[2].getState().speedMetersPerSecond
+            
+        }, trueStatesLayout);
+
+
+        ShuffleboardLayout desiredStatesLayout = getTab().getLayout("DesiredModuleStates", BuiltInLayouts.kList).withSize(2, 3);
+        addDoubleArrayToShuffleboard(name, () -> 
+            new double[]{
+                object[1].getDesiredState().angle.getDegrees(),  object[1].getDesiredState().speedMetersPerSecond,
+                object[3].getDesiredState().angle.getDegrees(), object[3].getDesiredState().speedMetersPerSecond,
+                object[0].getDesiredState().angle.getDegrees(), object[0].getDesiredState().speedMetersPerSecond,
+                object[2].getDesiredState().angle.getDegrees(), object[2].getDesiredState().speedMetersPerSecond
+        }, desiredStatesLayout);   
+
         
+
+
+
         //FL, FR, BL, BR
         add(new LoggedDoubleArray(this, () -> 
             new double[]{

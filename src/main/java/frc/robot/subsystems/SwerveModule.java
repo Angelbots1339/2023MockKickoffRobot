@@ -120,11 +120,13 @@ public class SwerveModule {
                 }
         }
 
+        PositionVoltage anglePositionControl = new PositionVoltage(0).withSlot(0);
+
         private void setAngle(SwerveModuleState desiredState) {
-                Rotation2d angle = (Math
+                Rotation2d angle = Conversions.gearRatioConvert((Math
                                 .abs(desiredState.speedMetersPerSecond) <= (Constants.SwerveConstants.MAX_SPEED * 0.01))
                                                 ? lastAngle
-                                                : desiredState.angle; // Prevent rotating module if speed is less then
+                                                : desiredState.angle, Constants.SwerveConstants.ANGLE_GEAR_RATIO); // Prevent rotating module if speed is less then
                 // 1%. Prevents Jittering.
 
                 // angleMotor.setControl(new PositionVoltage(ANGLE_KF,
@@ -133,10 +135,17 @@ public class SwerveModule {
                 // Conversions.degreesToFalcon(angle.getDegrees(),
                 // Constants.SwerveConstants.ANGLE_GEAR_RATIO));
 
-                PositionVoltage positionVoltage = new PositionVoltage(Conversions.gearRatioConvert(angle.getRotations(),
-                                Constants.SwerveConstants.ANGLE_GEAR_RATIO)).withSlot(0);
+                
 
-                angleMotor.setControl(positionVoltage);
+                angleMotor.setControl(anglePositionControl.withPosition(angle.getRotations()).withEnableFOC(true).withSlot(0));
+
+                // SmartDashboard.putNumber("DesiredPIDSlot " + moduleNumber, Conversions.gearRatioConvert(angleMotor.getClosedLoopOutput().getValue(),
+                //                 Constants.SwerveConstants.ANGLE_GEAR_RATIO));
+
+                SmartDashboard.putNumber("DesiredAngle " + moduleNumber, desiredState.angle.getRotations());
+                SmartDashboard.putNumber("CurrentAngle " + moduleNumber, angleMotor.getPosition().getValue());
+                
+
 
                 lastAngle = angle;
         }
@@ -184,9 +193,14 @@ public class SwerveModule {
         }
 
         public void resetToAbsolute() {
-                double absolutePosition = Conversions.degreesToRotations(
-                                angleEncoder.getAbsolutePosition() - angleOffset.getDegrees(),
+                double absolutePosition = Conversions.gearRatioConvert(
+                                angleEncoder.getAbsolutePosition() - angleOffset.getRotations(),
                                 Constants.SwerveConstants.ANGLE_GEAR_RATIO);
+
+                // absolutePosition = angleEncoder.getAbsolutePosition() - angleOffset.getRotations();
+
+                SmartDashboard.putNumber("Abs Position " + moduleNumber, absolutePosition);
+
                 angleMotor.setPosition(absolutePosition);
 
         }
@@ -200,9 +214,14 @@ public class SwerveModule {
                 TalonFXConfiguration angleMotorConfig = new TalonFXConfiguration();
                 angleMotor.getConfigurator().refresh(angleMotorConfig, 0.1);
 
+                // System.out.println("OldMotorConfig " + moduleNumber + ": " + angleMotorConfig.Slot0.kP);
+
+
                 angleMotorConfig.Slot0.kP = ANGLE_KP;
                 angleMotorConfig.Slot0.kI = ANGLE_KI;
                 angleMotorConfig.Slot0.kD = ANGLE_KD;
+
+                angleMotorConfig.ClosedLoopGeneral.ContinuousWrap = true;
 
                 angleMotorConfig.CurrentLimits.SupplyCurrentLimit = ANGLE_CONTINUOUS_CURRENT_LIMIT;
                 angleMotorConfig.CurrentLimits.SupplyCurrentLimitEnable = ANGLE_ENABLE_CURRENT_LIMIT;
@@ -216,6 +235,8 @@ public class SwerveModule {
                 angleMotorConfig.MotorOutput.Inverted = ANGLE_MOTOR_INVERT;
                 angleMotorConfig.MotorOutput.NeutralMode = ANGLE_NEUTRAL_MODE;
 
+                angleMotor.getConfigurator().apply(angleMotorConfig);
+
                 resetToAbsolute();
         }
 
@@ -223,6 +244,7 @@ public class SwerveModule {
 
                 TalonFXConfiguration driveMotorConfig = new TalonFXConfiguration();
                 angleMotor.getConfigurator().refresh(driveMotorConfig, 0.1);
+
 
                 driveMotorConfig.Slot0.kP = DRIVE_KP;
                 driveMotorConfig.Slot0.kI = 0;
@@ -237,6 +259,8 @@ public class SwerveModule {
 
                 driveMotorConfig.MotorOutput.Inverted = DRIVE_MOTOR_INVERT;
                 driveMotorConfig.MotorOutput.NeutralMode = DRIVE_NEUTRAL_MODE;
+
+                driveMotor.getConfigurator().apply(driveMotorConfig);
 
                 driveMotor.setPosition(0);
 

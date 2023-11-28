@@ -87,7 +87,17 @@ public class Conversions {
    * @return
    */
   public static double gearRatioConvert(double value, double gearRatio) {
-    return value / gearRatio;
+    return value * gearRatio;
+  }
+
+   /**
+   * 
+   * @param value
+   * @param gearRatio 
+   * @return
+   */
+  public static Rotation2d gearRatioConvert(Rotation2d value, double gearRatio) {
+    return Rotation2d.fromRotations(gearRatioConvert(value.getRotations() , gearRatio));
   }
 
   /**
@@ -141,7 +151,7 @@ public class Conversions {
    * 
    * @param returnAxis The axis desired to be converted
    * @param otherAxis  the other axsis (need for computation)
-   * @return
+   * @return The mapped joystick value
    */
   public static Double mapJoystick(Double returnAxis, double otherAxis) {
     return returnAxis * Math.sqrt(1 - ((otherAxis * otherAxis) / 2));

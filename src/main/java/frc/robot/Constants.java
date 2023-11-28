@@ -120,7 +120,7 @@ public final class Constants {
             public static final int DRIVE_SENSOR_VELOCITY_MEAS_WINDOW = 32;
 
             /* Angle Motor PID Values */
-            public static final double ANGLE_KP = 0.3;
+            public static final double ANGLE_KP = 7;
             public static final double ANGLE_KI = 0.0;
             public static final double ANGLE_KD = 0.0;
             public static final double ANGLE_KF = 0.0;

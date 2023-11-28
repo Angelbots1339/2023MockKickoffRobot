@@ -48,7 +48,7 @@ public class RobotContainer {
   private final SendableChooser<Command> autChooser;
 
   private final XboxController driver = new XboxController(0);
-  private final XboxController operator = new XboxController(1);
+  // private final XboxController operator = new XboxController(1);
 
   private final Swerve swerve = new Swerve();
   private final Shooter shooter = new Shooter();
@@ -80,12 +80,12 @@ public class RobotContainer {
   private final Trigger runIntake = new JoystickButton(driver,
       XboxController.Button.kLeftBumper.value);
 
-  private final Trigger alignAndShoot = new JoystickButton(operator,
+  private final Trigger alignAndShoot = new JoystickButton(driver,
       XboxController.Button.kA.value);
 
   /****** Operator Controls ******/
-  private final Trigger toggleIntakeDeploy = new JoystickButton(operator,
-      XboxController.Button.kA.value);
+  // private final Trigger toggleIntakeDeploy = new JoystickButton(operator,
+  //     XboxController.Button.kA.value);
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -138,8 +138,7 @@ public class RobotContainer {
   }
 
   private void configureOperatorBindings() {
-    toggleIntakeDeploy
-        .onTrue(new InstantCommand(intake.isIntakeDeployed() ? intake::retractIntake : intake::deployIntake));
+
   }
 
   /**
