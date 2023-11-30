@@ -141,6 +141,11 @@ public class RobotContainer {
 
   }
 
+
+  public void resetToAbsloute() {
+    swerve.resetToAbsolute();
+}
+
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
    *

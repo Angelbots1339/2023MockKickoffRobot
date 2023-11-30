@@ -38,29 +38,29 @@ public class LoggedSwerveModule extends LoggedObject<SwerveModule[]> {
 
        
         ShuffleboardLayout layout0 = getTab().getLayout("Module:0", BuiltInLayouts.kList).withSize(2, 3);
-        addDoubleToShuffleboard("CanCoder", () -> object[0].getCanCoder().getDegrees(), layout0);
-        addDoubleToShuffleboard("Angle", () -> object[0].getState().angle.getDegrees(), layout0);
+        addDoubleToShuffleboard("CanCoder", () -> object[0].getCanCoder().getRotations(), layout0);
+        addDoubleToShuffleboard("Angle", () -> object[0].getState().angle.getRotations(), layout0);
         addDoubleToShuffleboard("Speed", () -> object[0].getState().speedMetersPerSecond, layout0);
         addDoubleToShuffleboard("TotalDistance", () -> object[0].getPosition().distanceMeters, layout0);
         addDoubleToShuffleboard("TotalRotations", () -> object[0].getRotations(), layout0);
        
         ShuffleboardLayout layout1 = getTab().getLayout("Module:1", BuiltInLayouts.kList).withSize(2, 3);
-        addDoubleToShuffleboard("CanCoder", () -> object[1].getCanCoder().getDegrees(), layout1);
-        addDoubleToShuffleboard("Angle", () -> object[1].getState().angle.getDegrees(), layout1);
+        addDoubleToShuffleboard("CanCoder", () -> object[1].getCanCoder().getRotations(), layout1);
+        addDoubleToShuffleboard("Angle", () -> object[1].getState().angle.getRotations(), layout1);
         addDoubleToShuffleboard("Speed", () -> object[1].getState().speedMetersPerSecond, layout1);
         addDoubleToShuffleboard("TotalDistance", () -> object[1].getPosition().distanceMeters, layout1);
         addDoubleToShuffleboard("TotalRotations", () -> object[1].getRotations(), layout1);
 
         ShuffleboardLayout layout2 = getTab().getLayout("Module:2", BuiltInLayouts.kList).withSize(2, 3);
-        addDoubleToShuffleboard("CanCoder", () -> object[2].getCanCoder().getDegrees(), layout2);
-        addDoubleToShuffleboard("Angle", () -> object[2].getState().angle.getDegrees(), layout2);
+        addDoubleToShuffleboard("CanCoder", () -> object[2].getCanCoder().getRotations(), layout2);
+        addDoubleToShuffleboard("Angle", () -> object[2].getState().angle.getRotations(), layout2);
         addDoubleToShuffleboard("Speed", () -> object[2].getState().speedMetersPerSecond, layout2);
         addDoubleToShuffleboard("TotalDistance", () -> object[2].getPosition().distanceMeters, layout2);
         addDoubleToShuffleboard("TotalRotations", () -> object[2].getRotations(),layout2);
 
         ShuffleboardLayout layout3 = getTab().getLayout("Module:3", BuiltInLayouts.kList).withSize(2, 3);
-        addDoubleToShuffleboard("CanCoder", () -> object[3].getCanCoder().getDegrees(), layout3);
-        addDoubleToShuffleboard("Angle", () -> object[3].getState().angle.getDegrees(), layout3);
+        addDoubleToShuffleboard("CanCoder", () -> object[3].getCanCoder().getRotations(), layout3);
+        addDoubleToShuffleboard("Angle", () -> object[3].getState().angle.getRotations(), layout3);
         addDoubleToShuffleboard("Speed", () -> object[3].getState().speedMetersPerSecond, layout3);
         addDoubleToShuffleboard("TotalDistance", () -> object[3].getPosition().distanceMeters, layout3);
         addDoubleToShuffleboard("TotalRotations", () -> object[3].getRotations(), layout3);
@@ -76,6 +76,8 @@ public class LoggedSwerveModule extends LoggedObject<SwerveModule[]> {
                 object[2].getState().angle.getDegrees(), object[2].getState().speedMetersPerSecond
             
         }, trueStatesLayout);
+
+        System.out.println(object[0].getState());
 
 
         ShuffleboardLayout desiredStatesLayout = getTab().getLayout("DesiredModuleStates", BuiltInLayouts.kList).withSize(2, 3);

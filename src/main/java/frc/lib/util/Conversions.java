@@ -49,7 +49,7 @@ public class Conversions {
    * @return Falcon Velocity Counts
    */
   public static double RPSToMPS(double velocitycounts, double circumference, double gearRatio) {
-    double wheelRPS = velocitycounts/ gearRatio;
+    double wheelRPS = velocitycounts / gearRatio;
     double wheelMPS = (wheelRPS * circumference) / 60;
     return wheelMPS;
   }
@@ -80,25 +80,6 @@ public class Conversions {
     return wheelVelocity;
   }
 
-  /**
-   * 
-   * @param value
-   * @param gearRatio 
-   * @return
-   */
-  public static double gearRatioConvert(double value, double gearRatio) {
-    return value * gearRatio;
-  }
-
-   /**
-   * 
-   * @param value
-   * @param gearRatio 
-   * @return
-   */
-  public static Rotation2d gearRatioConvert(Rotation2d value, double gearRatio) {
-    return Rotation2d.fromRotations(gearRatioConvert(value.getRotations() , gearRatio));
-  }
 
   /**
    * @param x position from joystick
