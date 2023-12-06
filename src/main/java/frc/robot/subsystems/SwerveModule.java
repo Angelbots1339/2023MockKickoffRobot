@@ -23,12 +23,13 @@ import com.ctre.phoenix6.controls.VelocityDutyCycle;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 // import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.hardware.CANcoder;
 
 public class SwerveModule {
         public int moduleNumber;
-        public Rotation2d angleOffset;
         private double lastAngle;
+        private SwerveModuleConstants moduleConstants;
 
         private TalonFX angleMotor;
         private TalonFX driveMotor;
@@ -41,7 +42,7 @@ public class SwerveModule {
 
         public SwerveModule(int moduleNumber, SwerveModuleConstants moduleConstants) {
                 this.moduleNumber = moduleNumber;
-                this.angleOffset = moduleConstants.angleOffset;
+                this.moduleConstants = moduleConstants;
 
                 /* Angle Encoder Config */
                 angleEncoder = new SwerveEncoder(moduleConstants.cancoderID, Constants.RIO, EncoderType.CANCODER);
@@ -120,7 +121,7 @@ public class SwerveModule {
                 }
         }
 
-        PositionVoltage anglePositionControl = new PositionVoltage(0).withSlot(0).withFeedForward(ANGLE_KF);
+        PositionVoltage anglePositionControl = new PositionVoltage(0).withSlot(0).withEnableFOC(true);
 
         private void setAngle(SwerveModuleState desiredState) {
                 double angle = (Math
@@ -136,14 +137,14 @@ public class SwerveModule {
                 // then
                 // 1%. Prevents Jittering.
 
-                angleMotor.setControl(anglePositionControl.withPosition(angle));
+                angleMotor.setControl(anglePositionControl.withPosition(angle).withFeedForward(ANGLE_KF));
 
                 // SmartDashboard.putNumber("DesiredPIDSlot " + moduleNumber,
                 // Conversions.gearRatioConvert(angleMotor.getClosedLoopOutput().getValue(),
                 // Constants.SwerveConstants.ANGLE_GEAR_RATIO));
 
                 SmartDashboard.putNumber("DesiredAngle " + moduleNumber,
-                                desiredState.angle.getRotations());
+                                desiredState.angle.getRotations() % 1);
                 SmartDashboard.putNumber("ClosedLoopOutput " + moduleNumber,
                                 angleMotor.getClosedLoopOutput().getValue());
                 SmartDashboard.putNumber("ClosedLoopError " + moduleNumber,
@@ -172,11 +173,15 @@ public class SwerveModule {
 
         private Rotation2d getAngle() {
                 return Rotation2d.fromRotations(
-                                angleMotor.getPosition().getValue());
+                                angleMotor.getPosition().getValue() % 1);
         }
 
         public Rotation2d getCanCoder() {
                 return Rotation2d.fromRotations(angleEncoder.getAbsolutePosition());
+        }
+
+        public Rotation2d getCanCoderWithOffset() {
+                return Rotation2d.fromRotations(angleEncoder.getAbsolutePosition() - moduleConstants.angleOffset.getRotations());
         }
 
         public TalonFX getAngleMotor() {
@@ -184,7 +189,7 @@ public class SwerveModule {
         }
 
         public TalonFX getDriveMotor() {
-                return angleMotor;
+                return driveMotor;
         }
 
         public void resetDriveEncoder() {
@@ -198,7 +203,7 @@ public class SwerveModule {
         }
 
         public void resetToAbsolute() {
-                double absolutePosition = (angleEncoder.getAbsolutePosition() - angleOffset.getRotations());
+                double absolutePosition = (angleEncoder.getAbsolutePosition() - moduleConstants.angleOffset.getRotations());
 
                 // absolutePosition = angleEncoder.getAbsolutePosition() -
                 // angleOffset.getRotations();
@@ -210,7 +215,7 @@ public class SwerveModule {
         }
 
         private void configAngleEncoder() {
-                angleEncoder.configure(moduleNumber);
+                angleEncoder.configure(moduleNumber, moduleConstants);
         }
 
         private void configAngleMotor() {
@@ -231,7 +236,16 @@ public class SwerveModule {
                 angleMotorConfig.CurrentLimits.SupplyCurrentLimitEnable = ANGLE_ENABLE_CURRENT_LIMIT;
                 angleMotorConfig.CurrentLimits.SupplyTimeThreshold = ANGLE_PEAK_CURRENT_DURATION;
 
+
+
                 angleMotorConfig.Feedback.SensorToMechanismRatio = Constants.SwerveConstants.ANGLE_GEAR_RATIO;
+                // angleMotorConfig.Feedback.SensorToMechanismRatio = 1;
+                // angleMotorConfig.Feedback.RotorToSensorRatio = Constants.SwerveConstants.ANGLE_GEAR_RATIO;
+
+                // angleMotorConfig.Feedback.FeedbackRemoteSensorID = angleEncoder.getDeviceID();
+                // angleMotorConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
+
+
 
                 angleMotorConfig.ClosedLoopRamps.VoltageClosedLoopRampPeriod = CLOSED_LOOP_RAMP;
                 angleMotorConfig.OpenLoopRamps.VoltageOpenLoopRampPeriod = OPEN_LOOP_RAMP;

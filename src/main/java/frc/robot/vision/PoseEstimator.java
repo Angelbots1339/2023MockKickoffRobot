@@ -86,14 +86,14 @@ public class PoseEstimator {
             //     return;
 
             
-            // double tagDistance = LimelightHelpers.getTargetPose3d_CameraSpace(LIMELIGHT_NAME).getTranslation().getNorm(); // Find direct distance to target for std dev calculation
-            // double xyStdDev2 = MathUtil.clamp(0.002 * Math.pow(2.2, tagDistance), 0, 1);
+            double tagDistance = LimelightHelpers.getTargetPose3d_CameraSpace(LIMELIGHT_NAME).getTranslation().getNorm(); // Find direct distance to target for std dev calculation
+            double xyStdDev2 = MathUtil.clamp(0.002 * Math.pow(2.2, tagDistance), 0, 1);
 
 
-            // Pose2d poseFromVision =  LimelightHelpers.getBotPose2d(LIMELIGHT_NAME);
-            // double poseFromVisionTimestamp = Timer.getFPGATimestamp() - LimelightHelpers.getLatency_Capture(LIMELIGHT_NAME) - LimelightHelpers.getLatency_Pipeline("limelight1");
+            Pose2d poseFromVision =  LimelightHelpers.getBotPose2d(LIMELIGHT_NAME);
+            double poseFromVisionTimestamp = Timer.getFPGATimestamp() - LimelightHelpers.getLatency_Capture(LIMELIGHT_NAME) - LimelightHelpers.getLatency_Pipeline(LIMELIGHT_NAME);
 
-            // poseEstimator.addVisionMeasurement(poseFromVision, poseFromVisionTimestamp, VecBuilder.fill(xyStdDev2, xyStdDev2, 0));
+            poseEstimator.addVisionMeasurement(poseFromVision, poseFromVisionTimestamp, VecBuilder.fill(xyStdDev2, xyStdDev2, 0));
 
         }
     

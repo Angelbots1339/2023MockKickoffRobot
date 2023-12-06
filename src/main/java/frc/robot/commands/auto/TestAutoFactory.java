@@ -22,10 +22,12 @@ public class TestAutoFactory {
   //   return new SwerveFollowTrajectory(trajectories.get(0), swerve, true);
   // }
 
-  // public static Command nonVision2mTest(Swerve swerve) {
-  //   List<PathPlannerTrajectory> trajectories = AutoUtils.loadTrajectoriesWithConstraints("2mTest");
-  //   return new SwerveFollowTrajectory(trajectories.get(0), swerve, false);
-  // }
+  public static Command nonVision2mTest(Swerve swerve) {
+    // List<PathPlannerTrajectory> trajectories = AutoUtils.loadTrajectoriesWithConstraints("2mTest");
+    // return new SwerveFollowTrajectory(trajectories.get(0), swerve, false);
+    return null;
+  }
+
   // public static Command nonVisionTurnTest(Swerve swerve) {
   //   List<PathPlannerTrajectory> trajectories = AutoUtils.loadTrajectoriesWithConstraints("TurnTest");
   //   return new SwerveFollowTrajectory(trajectories.get(0), swerve, false);

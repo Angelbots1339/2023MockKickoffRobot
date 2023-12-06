@@ -13,6 +13,9 @@ import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
+import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
+import com.pathplanner.lib.util.PIDConstants;
+import com.pathplanner.lib.util.ReplanningConfig;
 
 import edu.wpi.first.math.MatBuilder;
 import edu.wpi.first.math.Matrix;
@@ -54,8 +57,8 @@ public final class Constants {
         public static final int GYRO_BUFFER_SIZE = 9; // amount of values to store in buffer
 
         /* Drivetrain Constants */
-        public static final double TRACK_WIDTH = Units.inchesToMeters(19.75);
-        public static final double WHEEL_BASE = Units.inchesToMeters(19.75);
+        public static final double TRACK_WIDTH = Units.inchesToMeters(23.5); // Y Axis
+        public static final double WHEEL_BASE = Units.inchesToMeters(21.5); // X Axis
         public static final double WHEEL_CIRCUMFERENCE = 0.0980808154 * Math.PI;
         public static final double ALIGN_OFFSET= Units.inchesToMeters(15.75); //distance from center of robot to edge of bumper track width + bumper width
 
@@ -70,12 +73,13 @@ public final class Constants {
          * Swerve Kinematics
          * No need to ever change this unless you are not doing a traditional
          * rectangular/square 4 module swerve
+         * FL++, FR+-, BL-+, BR--
          */
         public static final SwerveDriveKinematics KINEMATICS = new SwerveDriveKinematics(
+                new Translation2d(WHEEL_BASE / 2.0, TRACK_WIDTH / 2.0), 
+                new Translation2d(WHEEL_BASE / 2.0, -TRACK_WIDTH / 2.0),
                 new Translation2d(-WHEEL_BASE / 2.0, TRACK_WIDTH / 2.0),
-                new Translation2d(WHEEL_BASE / 2.0, TRACK_WIDTH / 2.0),
-                new Translation2d(-WHEEL_BASE / 2.0, -TRACK_WIDTH / 2.0),
-                new Translation2d(WHEEL_BASE / 2.0, -TRACK_WIDTH / 2.0));
+                new Translation2d(-WHEEL_BASE / 2.0, -TRACK_WIDTH / 2.0));
 
         /*
          * Drive Motor Characterization Values
@@ -110,19 +114,11 @@ public final class Constants {
             public static final NeutralModeValue ANGLE_NEUTRAL_MODE = NeutralModeValue.Brake;
             public static final NeutralModeValue DRIVE_NEUTRAL_MODE = NeutralModeValue.Brake;
 
-            /* Sensor Initialization strategy */
-            public static final SensorInitializationStrategy ANGLE_SENSOR_INIT_STRATEGY = SensorInitializationStrategy.BootToZero;
-            public static final SensorInitializationStrategy DRIVE_SENSOR_INIT_STRATEGY = SensorInitializationStrategy.BootToZero;
-
-            /* drive motor velocity sensor period*/
-            public static final SensorVelocityMeasPeriod DRIVE_SENSOR_VELOCITY_MEAS_PERIOD = SensorVelocityMeasPeriod.Period_5Ms;
-            public static final int DRIVE_SENSOR_VELOCITY_MEAS_WINDOW = 32;
-
             /* Angle Motor PID Values */
-            public static final double ANGLE_KP = 12;
+            public static final double ANGLE_KP = 20;
             public static final double ANGLE_KI = 0.0;
             public static final double ANGLE_KD = 0.0;
-            public static final double ANGLE_KF = 0.1;
+            public static final double ANGLE_KF = 0;
 
             /* Drive Motor PID Values */
             public static final double DRIVE_KP = 0.1; 
@@ -137,7 +133,7 @@ public final class Constants {
             public static final double CLOSED_LOOP_RAMP = 0.0;
 
             /* Motor Inverts */
-            public static final InvertedValue ANGLE_MOTOR_INVERT = InvertedValue.Clockwise_Positive;
+            public static final InvertedValue ANGLE_MOTOR_INVERT = InvertedValue.CounterClockwise_Positive;
             public static final InvertedValue DRIVE_MOTOR_INVERT = InvertedValue.Clockwise_Positive;
 
             /* Swerve Current Limiting */
@@ -167,46 +163,46 @@ public final class Constants {
         }
 
         /* Module Specific Constants */
-        /** Back Left Module - Module 0 */
-        public static final class Mod0 {
-            public static final int DRIVE_MOTOR_ID = 4;
-            public static final int CANCODER_ID = 5;
-            public static final int ANGLE_MOTOR_ID = 6;
-            public static final Rotation2d ANGLE_OFFSET = Rotation2d.fromRotations(0.832520); // Rotations
-            public static final SwerveModuleConstants constants = new SwerveModuleConstants(DRIVE_MOTOR_ID,
-                    ANGLE_MOTOR_ID, CANCODER_ID, ANGLE_OFFSET);
-        }
 
-        /** Front Left Module - Module 1 */
-        public static final class Mod1 {
+        /** Front Left Module - Module 0 */
+        public static final class Mod0 {
             public static final int DRIVE_MOTOR_ID = 1;
             public static final int CANCODER_ID = 2;
             public static final int ANGLE_MOTOR_ID = 3;
-            public static final Rotation2d ANGLE_OFFSET = Rotation2d.fromRotations(0.507324); // Rotations
+            public static final Rotation2d ANGLE_OFFSET = Rotation2d.fromRotations(0.507080); // Rotations
+            public static final SwerveModuleConstants constants = new SwerveModuleConstants(DRIVE_MOTOR_ID,
+                    ANGLE_MOTOR_ID, CANCODER_ID, ANGLE_OFFSET);
+        }
+        /** front Right Module - Module 1 */
+        public static final class Mod1 {
+            public static final int DRIVE_MOTOR_ID = 12;
+            public static final int CANCODER_ID = 13;
+            public static final int ANGLE_MOTOR_ID = 14;
+            public static final Rotation2d ANGLE_OFFSET = Rotation2d.fromRotations(0.452148); // Rotations
             public static final SwerveModuleConstants constants = new SwerveModuleConstants(DRIVE_MOTOR_ID,
                     ANGLE_MOTOR_ID, CANCODER_ID, ANGLE_OFFSET);
         }
 
-        
-        /** Back Right Module - Module 2 */
+        /** Back Left Module - Module 2 */
         public static final class Mod2 {
+            public static final int DRIVE_MOTOR_ID = 4;
+            public static final int CANCODER_ID = 5;
+            public static final int ANGLE_MOTOR_ID = 6;
+            public static final Rotation2d ANGLE_OFFSET = Rotation2d.fromRotations(0.831543); // Rotations
+            public static final SwerveModuleConstants constants = new SwerveModuleConstants(DRIVE_MOTOR_ID,
+                    ANGLE_MOTOR_ID, CANCODER_ID, ANGLE_OFFSET);
+        }
+        
+        /** Back Right Module - Module 3 */
+        public static final class Mod3 {
             public static final int DRIVE_MOTOR_ID = 9;
             public static final int CANCODER_ID = 10;
             public static final int ANGLE_MOTOR_ID = 11;
-            public static final Rotation2d ANGLE_OFFSET = Rotation2d.fromRotations(0.605469); // Rotations
+            public static final Rotation2d ANGLE_OFFSET = Rotation2d.fromRotations(0.606201); // Rotations
             public static final SwerveModuleConstants constants = new SwerveModuleConstants(DRIVE_MOTOR_ID,
             ANGLE_MOTOR_ID, CANCODER_ID, ANGLE_OFFSET);
         }
         
-        /** front Right Module - Module 3 */
-        public static final class Mod3 {
-            public static final int DRIVE_MOTOR_ID = 12;
-            public static final int CANCODER_ID = 13;
-            public static final int ANGLE_MOTOR_ID = 14;
-            public static final Rotation2d ANGLE_OFFSET = Rotation2d.fromRotations(0.457520); // Rotations
-            public static final SwerveModuleConstants constants = new SwerveModuleConstants(DRIVE_MOTOR_ID,
-                    ANGLE_MOTOR_ID, CANCODER_ID, ANGLE_OFFSET);
-        }
         public static final class DrivePidConstants {
 
             public static final double ANGLE_KP = 0.025;  //0.05// radians per sec per degrees
@@ -311,7 +307,7 @@ public final class Constants {
 
     public static final class VisionConstants {
 
-        public static final String LIMELIGHT_NAME = "limelight1";
+        public static final String LIMELIGHT_NAME = "";
 
         public static final Transform3d APRILTAG_CAM_POS = new Transform3d(new Translation3d(0.24345, -0.25397, 0.56859),
                 new Rotation3d(0, -0, 0)); 
@@ -335,9 +331,21 @@ public final class Constants {
     }
 
     public static final class AutoConstants {
-        public static final double X_KP = 1.5;
-        public static final double Y_KP = 1.5;
+
+
+        public static final double TRANSLATION_KP = 1.5;
         public static final double THETA_KP = 3.2;
+        
+
+        public static final HolonomicPathFollowerConfig HOLONOMIC_CONFIG = new HolonomicPathFollowerConfig( // HolonomicPathFollowerConfig, this should likely live in your Constants class
+            new PIDConstants(TRANSLATION_KP, 0.0, 0.0), // Translation PID constants
+            new PIDConstants(THETA_KP, 0.0, 0.0), // Rotation PID constants
+            SwerveConstants.MAX_SPEED, // Max module speed, in m/s
+            Math.sqrt(Math.pow(SwerveConstants.TRACK_WIDTH, 2) + Math.pow(SwerveConstants.WHEEL_BASE, 2)), // Drive base radius in meters. Distance from robot center to furthest module.
+            new ReplanningConfig() // Default path replanning config. See the API for the options here
+        );
+
+        
     }
 
 

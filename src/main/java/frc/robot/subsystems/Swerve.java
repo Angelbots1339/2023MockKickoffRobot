@@ -1,6 +1,7 @@
 package frc.robot.subsystems;
 
 import com.ctre.phoenix6.configs.Pigeon2Configuration;
+import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.Pigeon2;
 
 import frc.lib.util.ClosedLoopUtil;
@@ -492,11 +493,6 @@ public class Swerve extends SubsystemBase {
     public boolean pidToYAtSetPoint(double target) {
         return Math.abs(pidToPoseYController.getPositionError()) <= TRANSLATION_PID_TOLERANCE;
     }
-
-    // TODO Fix
-    // public void TestTrajectoryGeneration(PathPoint endpoint) {
-    //     field.setTrajectory("AlignTraj", SwerveFollowTrajectory.SwerveGenerateTrajectoryToPoint(endpoint, this), true);
-    // }
    
 
 
@@ -506,8 +502,7 @@ public class Swerve extends SubsystemBase {
 
 
 
-
-
+    
 
 
     @Override
@@ -517,7 +512,6 @@ public class Swerve extends SubsystemBase {
 
         // SmartDashboard.putNumber("delayed yaw", gyroBuffer.getYaw(30 * 20));
         // SmartDashboard.putNumber("yaw", getYaw().getDegrees());
-
 
         calculateVelocity();
     }

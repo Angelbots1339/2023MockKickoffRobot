@@ -7,6 +7,7 @@ import com.ctre.phoenix6.signals.SensorDirectionValue;
 import com.reduxrobotics.sensors.canandcoder.Canandcoder;
 import com.reduxrobotics.sensors.canandcoder.CanandcoderSettings;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import frc.lib.util.Conversions;
 import frc.lib.util.ErrorCheckUtil;
 
@@ -98,10 +99,23 @@ public class SwerveEncoder {
         }
     }
 
-    public void configure(int moduleNumber) {
+
+    public int getDeviceID() {
         switch (encoderType) {
             case CANCODER:
-                configureCANcoder(moduleNumber);
+                return canCoder.getDeviceID();
+            case CANANDCODER:
+                // return canAndCoder.getDeviceID();
+
+        }
+
+        return 0;
+    }
+
+    public void configure(int moduleNumber, SwerveModuleConstants moduleConstants) {
+        switch (encoderType) {
+            case CANCODER:
+                configureCANcoder(moduleNumber, moduleConstants);
                 break;
             case CANANDCODER:
                 configureCanandcoder(moduleNumber);
@@ -109,11 +123,13 @@ public class SwerveEncoder {
         }
     }
 
-    public void configureCANcoder(int moduleNumber) {
+    public void configureCANcoder(int moduleNumber, SwerveModuleConstants moduleConstants) {
         CANcoderConfiguration config = new CANcoderConfiguration();
 
         config.MagnetSensor.AbsoluteSensorRange = CANCODER_ABSOLUTE_SENSOR_RANGE;
         config.MagnetSensor.SensorDirection = CANCODER_INVERT;
+
+        // config.MagnetSensor.MagnetOffset = moduleConstants.angleOffset.getRotations();
 
         ErrorCheckUtil.checkError(canCoder.getConfigurator().apply(config),
                 "Failed to configure CANCoder on module " + moduleNumber);
