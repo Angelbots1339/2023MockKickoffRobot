@@ -50,12 +50,11 @@ public class PoseEstimator {
 
     public PoseEstimator(LoggedField logger, Rotation2d gyroAngle, SwerveModulePosition[] positions) {
 
-        // Pose Estimator
-        // try {
-        //     layout = AprilTagFieldLayout.loadFromResource(AprilTagFields.k2023ChargedUp.m_resourceFile);
-        // } catch (IOException e) {
-        //     e.printStackTrace();
-        // }
+        try {
+            layout = AprilTagFieldLayout.loadFromResource(AprilTagFields.k2023ChargedUp.m_resourceFile);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         
         poseEstimatorNonVision = new SwerveDrivePoseEstimator(SwerveConstants.KINEMATICS, gyroAngle, positions,
                 new Pose2d(), STATE_STD_DEVS, VecBuilder.fill(0, 0, 0));
@@ -72,6 +71,7 @@ public class PoseEstimator {
     public void updateOdometry(Swerve swerve) {
         poseEstimator.update(swerve.getYaw(), swerve.getPositions());
         poseEstimatorNonVision.update(swerve.getYaw(), swerve.getPositions());
+
     }
 
     /**
@@ -82,16 +82,17 @@ public class PoseEstimator {
     public void updateVisionMeasurement(Swerve swerve, Pose2d referencePose) {
     
 
-            // if (robotToTarget == null)
-            //     return;
+            if (LimelightHelpers.getFiducialID(LIMELIGHT_NAME) < 0){
+                return;
+            }
 
             
             double tagDistance = LimelightHelpers.getTargetPose3d_CameraSpace(LIMELIGHT_NAME).getTranslation().getNorm(); // Find direct distance to target for std dev calculation
             double xyStdDev2 = MathUtil.clamp(0.002 * Math.pow(2.2, tagDistance), 0, 1);
 
 
-            Pose2d poseFromVision =  LimelightHelpers.getBotPose2d(LIMELIGHT_NAME);
-            double poseFromVisionTimestamp = Timer.getFPGATimestamp() - LimelightHelpers.getLatency_Capture(LIMELIGHT_NAME) - LimelightHelpers.getLatency_Pipeline(LIMELIGHT_NAME);
+            Pose2d poseFromVision =  LimelightHelpers.getBotPose2d_wpiBlue(LIMELIGHT_NAME);
+            double poseFromVisionTimestamp = Timer.getFPGATimestamp() - (LimelightHelpers.getLatency_Capture(LIMELIGHT_NAME) + LimelightHelpers.getLatency_Pipeline(LIMELIGHT_NAME)) / 1000;
 
             poseEstimator.addVisionMeasurement(poseFromVision, poseFromVisionTimestamp, VecBuilder.fill(xyStdDev2, xyStdDev2, 0));
 
@@ -105,8 +106,6 @@ public class PoseEstimator {
     public Pose2d getPoseNonVision() {
         return poseEstimatorNonVision.getEstimatedPosition();
     }
-
-    
 
 
     // public Optional<Pair<EstimatedRobotPose, Translation2d>> getPoseOnlyVision(Pose2d referencePose) {

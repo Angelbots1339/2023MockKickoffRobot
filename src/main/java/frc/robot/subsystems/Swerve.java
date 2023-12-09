@@ -209,22 +209,7 @@ public class Swerve extends SubsystemBase {
 
     }
 
-    public void xPos() {
-        SwerveModuleState[] states = new SwerveModuleState[] {
-                new SwerveModuleState(0, Rotation2d.fromDegrees(-45)),
-                new SwerveModuleState(0, Rotation2d.fromDegrees(45)),
-                new SwerveModuleState(0, Rotation2d.fromDegrees(45)),
-                new SwerveModuleState(0, Rotation2d.fromDegrees(-45))
-        };
-        for (SwerveModule mod : swerveMods) {
-            mod.setDesiredStateStrict(states[mod.moduleNumber], false);
-        }
-
-    }
-
-
-
-
+   
 
 
 
@@ -236,11 +221,17 @@ public class Swerve extends SubsystemBase {
     /********* SETTERS *********/
 
     /**
-     *  Used by PathPlanner's AutoBuilder
+     *  Used by PathPlanner for driving in Auto
      */
     public void setChassisSpeeds(ChassisSpeeds chassisSpeeds) {
-        // ChassisSpeeds adjustedChassisSpeeds =
-        // reduceSkewFromLogTwist2d(chassisSpeeds);
+
+        // chassisSpeeds = SwerveMath.reduceSkewFromLogTwist2d(chassisSpeeds); // TODO Test this
+
+
+        logger.updateDouble("x", chassisSpeeds.vxMetersPerSecond, "Drive");
+        logger.updateDouble("y", chassisSpeeds.vyMetersPerSecond, "Drive");
+        logger.updateDouble("rot", chassisSpeeds.omegaRadiansPerSecond, "Drive");
+
         SwerveModuleState[] swerveModuleStates = KINEMATICS.toSwerveModuleStates(chassisSpeeds);
         setModuleStates(swerveModuleStates, false);
     }

@@ -25,9 +25,9 @@ import frc.robot.subsystems.Swerve;
 /** Add your docs here. */
 public class AutoFactory {
 
-        public static Command Test2m(Swerve swerve) {
-                return new PathPlannerAuto("2mTest");
-        }
+        // public static Command Test2m(Swerve swerve) {
+        //         return new PathPlannerAuto("2mTest");
+        // }
 
         // public static Command resetGyroAndPos(Swerve swerve, PathPlannerTrajectory
         // trajectory) {

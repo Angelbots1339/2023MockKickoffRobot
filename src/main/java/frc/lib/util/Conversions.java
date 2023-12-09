@@ -57,27 +57,20 @@ public class Conversions {
   /**
    * @param rotationCounts Falcon position Counts
    * @param circumference  Circumference of Wheel
-   * @param gearRatio      Gear Ratio between Falcon and Mechanism (set to 1 for
-   *                       Falcon RPM)
    * @return Meters
    */
-  public static double rotationsToMeters(double rotationCounts, double circumference, double gearRatio) {
-    double wheelR = rotationCounts/ gearRatio;
-    double wheelM = (wheelR * circumference);
+  public static double rotationsToMeters(double rotationCounts, double circumference) {
+    double wheelM = (rotationCounts * circumference);
     return wheelM;
   }
 
   /**
    * @param velocity      Velocity MPS
    * @param circumference Circumference of Wheel
-   * @param gearRatio     Gear Ratio between Falcon and Mechanism (set to 1 for
-   *                      Falcon RPM)
    * @return Rotations per second
    */
-  public static double MPSToRPS(double velocity, double circumference, double gearRatio) {
-    double wheelRPM = ((velocity * 60) / circumference);
-    double wheelVelocity = wheelRPM/ gearRatio;
-    return wheelVelocity;
+  public static double MPSToRPS(double velocity, double circumference) {
+    return velocity / circumference;
   }
 
 

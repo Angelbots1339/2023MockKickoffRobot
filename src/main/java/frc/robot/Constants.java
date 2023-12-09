@@ -59,13 +59,13 @@ public final class Constants {
         /* Drivetrain Constants */
         public static final double TRACK_WIDTH = Units.inchesToMeters(23.5); // Y Axis
         public static final double WHEEL_BASE = Units.inchesToMeters(21.5); // X Axis
-        public static final double WHEEL_CIRCUMFERENCE = 0.0980808154 * Math.PI;
+        public static final double WHEEL_CIRCUMFERENCE = 0.1033 * Math.PI;
         public static final double ALIGN_OFFSET= Units.inchesToMeters(15.75); //distance from center of robot to edge of bumper track width + bumper width
 
 
 
         /* Module Gear Ratios */
-        /** SDS MK4i l2 - 6.75 : 1 */
+       /** SDS MK4i L4 - 5.14 : 1 */
         public static final double DRIVE_GEAR_RATIO = (5.14 / 1.0);
         public static final double ANGLE_GEAR_RATIO = (12.8 / 1.0);
 
@@ -81,16 +81,13 @@ public final class Constants {
                 new Translation2d(-WHEEL_BASE / 2.0, TRACK_WIDTH / 2.0),
                 new Translation2d(-WHEEL_BASE / 2.0, -TRACK_WIDTH / 2.0));
 
+
         /*
          * Drive Motor Characterization Values
-         * Divide SYSID values by 12 to convert from volts to percent output for CTRE
-         * max speed:
-         * 6380/8.14 * 0.1 * pi / 60 = 4.103882295
-         * 12 / 4.103882295 = 2.920
          */
-        public static final double DRIVE_KS = (0.23153 / 12);
-        public static final double DRIVE_KV = (2.3061 / 12);
-        public static final double DRIVE_KA = (0.27485 / 12);
+        public static final double DRIVE_KS = (0.23153);// Volts to overcome static friction
+        public static final double DRIVE_KV = (2.3061); // Volts / m/s
+        public static final double DRIVE_KA = (0.27485);// Volts / m/s^2
 
 
 
@@ -98,9 +95,8 @@ public final class Constants {
         public static final double HEADING_DEADBAND = 0.3;
 
         /* Swerve Profiling Values */
-        /** Meters per Second */
-        private static final double TRUE_MAX_SPEED = 6380 / 60 / DRIVE_GEAR_RATIO * WHEEL_CIRCUMFERENCE; // 1.5;
-        private static final double KV_MAXSPEED = 1 / DRIVE_KV;
+        /** Meters per Second */ // TODO Make more clear
+        private static final double KV_MAXSPEED = 1 / DRIVE_KV * 12; // Max speed based on Kv Values
         public static final double MAX_SPEED = KV_MAXSPEED;// 4;
         /** Radians per Second */
         private static final double TRUE_MAX_ANGULAR = MAX_SPEED / 0.7094402336;
@@ -323,7 +319,11 @@ public final class Constants {
             0.10,
             0.10);
 
-        public static final Transform3d LIMELIGHT_CAM_POS = new Transform3d(new Translation3d(-0.04, -0.25, 0.85),
+            
+            // X:13 inch
+            // Y:6 inch
+            // Z:7.5 inch
+        public static final Transform3d LIMELIGHT_CAM_POS = new Transform3d(new Translation3d(Units.inchesToMeters(13), Units.inchesToMeters(6), Units.inchesToMeters(7.5)),
                 new Rotation3d(0, Math.toRadians(0), 0));
 
         public static final double LIMELIGHT_ALIGN_MAX_SPEED = 2; //m/s
